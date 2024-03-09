@@ -1,0 +1,23 @@
+
+Pendientes:
+- jwt auth
+- api esteticas con links heteoas
+
+- crud marcas
+- crud pedidos
+- crud pedidoitems
+- crud estados
+
+
+Realizados
+- crud usuario
+- crud categorias
+- crud productos
+- serializar objetos relacionados
+- manejo de errores
+
+
+Apuntes:
+flask db init
+flask db migrate -m "Initial migration."
+flask db upgrade
