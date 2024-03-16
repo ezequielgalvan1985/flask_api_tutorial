@@ -8,6 +8,7 @@ class User(db.Model, BaseModelMixin):
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(unique=True)
     email: Mapped[str]
+    password = db.Column(db.String(80))
 
     def __init__(self, username, email):
         self.username = username

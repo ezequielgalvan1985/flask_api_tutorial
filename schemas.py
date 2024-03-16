@@ -5,7 +5,12 @@ class UserSchema(ma.Schema):
     id = fields.Integer(dump_only=True)
     username = fields.String()
     email = fields.String()
+    password = fields.String()
 
+class UserSchemaDto(ma.Schema):
+    id = fields.Integer(dump_only=True)
+    username = fields.String()
+    email = fields.String()
 
 class CategoriaSchema(ma.Schema):
     id = fields.Integer(dump_only=False)

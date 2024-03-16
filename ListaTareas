@@ -7,7 +7,7 @@ Pendientes:
 - crud pedidos
 - crud pedidoitems
 - crud estados
-
+- usar abort en vez de custom response
 
 Realizados
 - crud usuario
@@ -19,5 +19,9 @@ Realizados
 
 Apuntes:
 flask db init
-flask db migrate -m "Initial migration."
+flask db migrate -m "nuevo campo password"
 flask db upgrade
+
+
+
+https://www.geeksforgeeks.org/using-jwt-for-user-authentication-in-flask/

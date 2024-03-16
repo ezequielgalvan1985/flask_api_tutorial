@@ -1,5 +1,5 @@
-from flask import request, Blueprint
-from flask_restful import Api, Resource, abort
+from flask import request, Blueprint, abort
+from flask_restful import Api, Resource
 from schemas import ProductoSchema
 from models import Producto, Categoria
 from db import db
@@ -22,7 +22,7 @@ class ProductoListResource(Resource):
                             precio = record_dict['precio'])
         producto.categoria = Categoria.get_by_id(record_dict['categoria']['id'])
         if producto.categoria is None:
-            abort(404, description="No se encontro Categoria")
+            abort(404, "No se encontro Categoria")
         producto.save()
         resp = producto_serializer.dump(producto)
         return resp, 201
@@ -32,14 +32,14 @@ class ProductoResource(Resource):
     def get(self, id):
         r = Producto.get_by_id(id)
         if r is None:
-            abort(404, description="No se encontro Producto")
+            abort(404, "No se encontro Producto")
         resp = producto_serializer.dump(r)
         return resp
 
     def delete(self, id):
         r = Producto.get_by_id(id)
         if r is None:
-            abort(404, description="No se encontro Producto")
+            abort(404, "No se encontro Producto")
         productos = db.session.delete(r)
         db.session.commit()
         return '', 204
@@ -47,7 +47,7 @@ class ProductoResource(Resource):
     def put(self, id):
         r = Producto.get_by_id(id)
         if r is None:
-            abort(404, description="No se encontro Producto")
+            abort(404, "No se encontro Producto")
         data = request.get_json()
         record_dict = producto_serializer.load(data)
         r.nombre = record_dict['nombre']
@@ -55,7 +55,7 @@ class ProductoResource(Resource):
         r.precio = record_dict['precio']
         r.categoria = Categoria.get_by_id(record_dict['categoria']['id'])
         if r.categoria is None:
-            abort(404, description="No se encontro Categoria")
+            abort(404, "No se encontro Categoria")
 
         r.save()
         resp = producto_serializer.dump(r)
