@@ -5,7 +5,7 @@ from flask_restful import Api, abort
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 from werkzeug.security import check_password_hash
-from models import User
+from models import User, Permiso
 from resources_users import users_blueprint, user_serializer
 from resources_categorias import categorias_blueprint
 from resources_productos import productos_blueprint
@@ -13,7 +13,8 @@ from db import db
 from schemas import UserSchemaDto
 
 from flask import Flask
-from flask_jwt_extended import JWTManager, create_access_token, create_refresh_token, get_jwt_identity, current_user
+from flask_jwt_extended import JWTManager, create_access_token, create_refresh_token, get_jwt_identity, current_user, \
+    get_jwt
 from flask_jwt_extended import jwt_required
 
 
@@ -67,8 +68,9 @@ def custom_401(error):
 @app.route('/api/v1.0/auth/protected', methods=['GET'])
 @jwt_required()
 def protected():
+    claims = get_jwt()
     current_user = get_jwt_identity()
-    return jsonify(logged_in_as=current_user), 200
+    return jsonify(logged_in_as=current_user, claims=claims), 200
 
 
 @app.route('/api/v1.0/auth/login', methods=['POST'])
@@ -81,7 +83,10 @@ def login():
         abort(404, description="No se encontro usuario")
     if not check_password_hash(user.password, record_dict['password']):
         abort(400, "Usuario o contraseña Invalido")
-    access_token = create_access_token(identity=user)
+    additional_claims = {"aud": "some_audience", "foo": "bar"}
+    #setear los permisos
+    permisos = Permiso.query.filter_by(id=user.rol)
+    access_token = create_access_token(identity=user, additional_claims=additional_claims)
     return {"access_token":access_token},200
 
 @app.route("/who_am_i", methods=["GET"])

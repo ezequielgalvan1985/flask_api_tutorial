@@ -1,6 +1,6 @@
 from flask import request, Blueprint
+from flask_jwt_extended import jwt_required
 from flask_restful import Api, Resource
-
 from schemas import CategoriaSchema
 from models import Categoria
 from db import db
@@ -11,8 +11,9 @@ api = Api(categorias_blueprint)
 
 
 class CategoriaListResource(Resource):
+    @jwt_required()
     def get(self):
-        print('flag1')
+
         categorias = db.session.execute(db.select(Categoria).order_by(Categoria.nombre)).scalars()
         result = categoria_serializer.dump(categorias, many=True)
         print('flag2')
