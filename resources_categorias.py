@@ -1,9 +1,11 @@
-from flask import request, Blueprint
-from flask_jwt_extended import jwt_required
+from flask import request, Blueprint, abort
+from flask_jwt_extended import jwt_required, get_jwt
 from flask_restful import Api, Resource
-from schemas import CategoriaSchema
-from models import Categoria
+from schemas import CategoriaSchema, RolPermisoSchema
+from models import Categoria, Permiso
 from db import db
+from flask_jwt_extended import get_jwt_identity
+import json
 
 categoria_serializer = CategoriaSchema()
 categorias_blueprint = Blueprint('categorias_blueprint', __name__)
@@ -14,9 +16,22 @@ class CategoriaListResource(Resource):
     @jwt_required()
     def get(self):
 
+        claims = get_jwt()
+        acceso = False
+
+        permisoRequerido= Permiso.query.filter_by(recurso='categorias').first()
+        if permisoRequerido is None:
+            return abort(500, "NO Existe Permiso Categoria")
+
+        for item in claims['permisos']:
+            if item["permisoId"] == permisoRequerido.id:
+                acceso = True
+
+        if acceso is False:
+            return abort(403, "Usuario no esta Autorizado")
+
         categorias = db.session.execute(db.select(Categoria).order_by(Categoria.nombre)).scalars()
         result = categoria_serializer.dump(categorias, many=True)
-        print('flag2')
         return result
 
     def post(self):

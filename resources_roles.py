@@ -5,16 +5,14 @@ from models import Rol
 from db import db
 
 rol_serializer = RolSchema()
-rols_blueprint = Blueprint('rol_blueprint', __name__)
-api = Api(rols_blueprint)
+roles_blueprint = Blueprint('rol_blueprint', __name__)
+api = Api(roles_blueprint)
 
 
 class RolListResource(Resource):
     def get(self):
-        print('flag1')
         rols = db.session.execute(db.select(Rol).order_by(Rol.nombre)).scalars()
         result = rol_serializer.dump(rols, many=True)
-        print('flag2')
         return result
 
     def post(self):
@@ -55,5 +53,5 @@ class RolResource(Resource):
         resp = rol_serializer.dump(r)
         return {"message": "Actualizado Ok", "data": resp}, 200
 
-api.add_resource(RolListResource, '/api/v1.0/rols',endpoint='rol_list_resource')
-api.add_resource(RolResource, '/api/v1.0/rols/<int:id>', endpoint='rol_resource')
+api.add_resource(RolListResource, '/api/v1.0/roles',endpoint='rol_list_resource')
+api.add_resource(RolResource, '/api/v1.0/roles/<int:id>', endpoint='rol_resource')

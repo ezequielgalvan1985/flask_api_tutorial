@@ -9,7 +9,7 @@ class User(db.Model, BaseModelMixin):
     username: Mapped[str] = mapped_column(unique=True)
     email: Mapped[str]
     password = db.Column(db.String(80))
-    #rolId = db.Column(db.Integer, db.ForeignKey('rol.id'))
+    rolId = db.Column(db.Integer, db.ForeignKey('rol.id'))
     #rol = db.relationship("Rol", backref=db.backref("rol", uselist=False))
 
     def __init__(self, username, email):
@@ -42,20 +42,29 @@ class Permiso(db.Model, BaseModelMixin):
     id: Mapped[int] = mapped_column(primary_key=True)
     nombre: Mapped[str] = mapped_column(unique=True)
     descripcion: Mapped[str]
-    recurso:db.Column(db.String)
-    acceso:db.Column(db.String)
-    rolId = db.Column(db.Integer, db.ForeignKey('rol.id'))
-    rol = db.relationship("Rol", backref=db.backref("rol", uselist=False))
-
-    def __init__(self, nombre, descripcion):
-        self.nombre = nombre
-        self.descripcion = descripcion
+    recurso: Mapped[str]
+    acceso: Mapped[str]
 
     def __repr__(self):
         return f'Rol ({self.nombre} {self.descripcion})'
 
     def __str__(self):
         return f'{self.nombre} {self.nombre}'
+
+class RolPermiso(db.Model, BaseModelMixin):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    rolId = db.Column(db.Integer, db.ForeignKey('rol.id'))
+    #rol = db.relationship("RolPermiso", backref=db.backref("rol", uselist=False))
+    permisoId = db.Column(db.Integer, db.ForeignKey('permiso.id'))
+    #permiso = db.relationship("PermisoRol", backref=db.backref("permiso", uselist=False))
+
+    def __init__(self, rolId, permisoId):
+        self.rolId = rolId
+        self.permisoId = permisoId
+
+    def __repr__(self):
+        return f'Rol ({self.rolId}) - Permiso ({self.permisoId})'
+
 
 
 class Categoria(db.Model, BaseModelMixin):

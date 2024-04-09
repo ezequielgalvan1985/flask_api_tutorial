@@ -2,15 +2,17 @@ from flask import request, Blueprint,abort
 from flask_restful import Api, Resource
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash
-
-from schemas import UserSchema,UserSchemaDto
+from schemas import UserSchema, UserSchemaDto, PermisoSchema
 from models import User
 from db import db
 
 user_serializer = UserSchema()
+permiso_serializer = PermisoSchema()
 
 users_blueprint = Blueprint('users_blueprint', __name__)
 api = Api(users_blueprint)
+
+
 
 
 class UserListResource(Resource):
@@ -35,6 +37,8 @@ class UserListResource(Resource):
             return abort(500, "Error al crear nuevo usuario")
 
 
+
+
 class UserResource(Resource):
     def get(self, id):
         r = User.get_by_id(id)
@@ -43,6 +47,7 @@ class UserResource(Resource):
         resp = user_serializer.dump(r)
         return resp
 
+
     def delete(self, id):
         r = User.get_by_id(id)
         if r is None:
@@ -50,6 +55,7 @@ class UserResource(Resource):
         db.session.delete(r)
         db.session.commit()
         return '', 204
+
 
     def put(self, id):
         r = User.get_by_id(id)
@@ -60,7 +66,7 @@ class UserResource(Resource):
         record_dict = user_serializer.load(data)
         r.username = record_dict['username']
         r.email = record_dict['email']
-        r.password = generate_password_hash(record_dict['password'],method='sha256')
+        r.rolId = record_dict['rolId']
         r.save()
         resp = user_serializer.dump(r)
         return {"message": "Actualizado Ok", "data": resp}, 200

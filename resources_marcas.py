@@ -20,8 +20,7 @@ class MarcaListResource(Resource):
     def post(self):
         data = request.get_json()
         record_dict = marca_serializer.load(data)
-        marca = Marca(nombre=record_dict['nombre'],
-                              descripcion=record_dict['descripcion'])
+        marca = Marca(nombre=record_dict['nombre'],descripcion=record_dict['descripcion'])
         marca.save()
         resp = marca_serializer.dump(marca)
         return resp, 201
