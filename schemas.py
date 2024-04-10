@@ -23,7 +23,7 @@ class CategoriaSchema(ma.Schema):
     id = fields.Integer(dump_only=False)
     nombre = fields.String()
     descripcion = fields.String()
-
+    rubroId = fields.Integer()
 
 class MarcaSchema(ma.Schema):
     id = fields.Integer(dump_only=False)
@@ -49,3 +49,21 @@ class RolPermisoSchema(ma.Schema):
     id = fields.Integer(dump_only=False)
     rolId = fields.Integer()
     permisoId = fields.Integer()
+
+class RubroSchema(ma.Schema):
+    id = fields.Integer(dump_only=False)
+    nombre = fields.String()
+    descripcion = fields.String()
+
+class EmpresaSchema(ma.Schema):
+    id = fields.Integer(dump_only=False)
+    nombre = fields.String()
+    descripcion = fields.String()
+    frase = fields.String()
+    direccion = fields.String()
+    ciudad = fields.String()
+    telefono = fields.String()
+    rubro = ma.Nested(RubroSchema, many=False)
+    rubro_id = fields.Integer()
+    usuario = ma.Nested(UserSchema, many=False)
+    usuario_id = fields.Integer()

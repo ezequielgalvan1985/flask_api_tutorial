@@ -15,10 +15,8 @@ api = Api(categorias_blueprint)
 class CategoriaListResource(Resource):
     @jwt_required()
     def get(self):
-
         claims = get_jwt()
         acceso = False
-
         permisoRequerido= Permiso.query.filter_by(recurso='categorias').first()
         if permisoRequerido is None:
             return abort(500, "NO Existe Permiso Categoria")
@@ -39,6 +37,8 @@ class CategoriaListResource(Resource):
         record_dict = categoria_serializer.load(data)
         categoria = Categoria(nombre=record_dict['nombre'],
                               descripcion=record_dict['descripcion'])
+        categoria.rubroId = record_dict['rubroId']
+
         categoria.save()
         resp = categoria_serializer.dump(categoria)
         return resp, 201
@@ -69,9 +69,11 @@ class CategoriaResource(Resource):
         record_dict = categoria_serializer.load(data)
         r.nombre = record_dict['nombre']
         r.descripcion = record_dict['descripcion']
+        r.rubroId = record_dict['rubro_id']
         r.save()
         resp = categoria_serializer.dump(r)
         return {"message": "Actualizado Ok", "data": resp}, 200
+
 
 api.add_resource(CategoriaListResource, '/api/v1.0/categorias',endpoint='categorias_list_resource')
 api.add_resource(CategoriaResource, '/api/v1.0/categorias/<int:id>', endpoint='categoria_resource')

@@ -1,5 +1,4 @@
 from flask import request, Blueprint
-from flask_jwt import jwt_required
 from flask_restful import Api, Resource
 
 from schemas import MarcaSchema
@@ -27,7 +26,6 @@ class MarcaListResource(Resource):
 
 
 class MarcaResource(Resource):
-    @jwt_required()
     def get(self, id):
         r = Marca.get_by_id(id)
         if r is None:

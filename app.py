@@ -4,12 +4,15 @@ from flask_restful import Api, abort
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 from werkzeug.security import check_password_hash
-from models import User, Permiso, RolPermiso
+from models import User, Permiso, RolPermiso, Categoria, Empresa
+from resources_empresas import empresas_blueprint, empresa_serializer
+from resources_marcas import marcas_blueprint
 from resources_permisos import permisos_blueprint
 from resources_roles import roles_blueprint
 from resources_rolpermisos import rolpermisos_serializer, rolpermisos_blueprint
+from resources_rubros import rubros_blueprint
 from resources_users import users_blueprint, user_serializer
-from resources_categorias import categorias_blueprint
+from resources_categorias import categorias_blueprint, categoria_serializer
 from resources_productos import productos_blueprint
 from db import db
 from schemas import UserSchemaDto, PermisoSchema, RolPermisoSchema
@@ -108,6 +111,32 @@ def who_am_i():
         username=current_user.username,
     )
 
+
+#metodos personalizados
+#Consultas Categorias
+@app.route("/api/v1.0/categorias/consultas/findbyrubro/<int:rubro_id>", methods=["GET"])
+@jwt_required()
+def categoriasFindByRubro(rubro_id):
+    c=Categoria.query.filter_by(rubroId=rubro_id).all()
+    if c is None:
+        return abort(500, "No existen Categorias para el Rubro "+ rubro_id)
+    resp = categoria_serializer.dump(c,many=True)
+    return resp,200
+
+
+
+@app.route("/api/v1.0/empresas/consultas/findbyuser/<int:user_id>", methods=["GET"])
+@jwt_required()
+def empresasFindByUserId(user_id):
+    r=Empresa.query.filter_by(user_id=user_id).first()
+    #empresa_serializer.dump(r)
+    if r is None:
+        return abort(500, "No existe Empresa para el Usuario "+ user_id)
+    resp = empresa_serializer.dump(r, many=False)
+    return resp, 200
+
+
+
 ma = Marshmallow()
 migrate = Migrate()
 
@@ -131,6 +160,10 @@ app.register_blueprint(productos_blueprint)
 app.register_blueprint(roles_blueprint)
 app.register_blueprint(permisos_blueprint)
 app.register_blueprint(rolpermisos_blueprint)
+app.register_blueprint(rubros_blueprint)
+app.register_blueprint(marcas_blueprint)
+app.register_blueprint(empresas_blueprint)
+
 
 
 
