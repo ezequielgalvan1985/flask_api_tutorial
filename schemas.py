@@ -8,7 +8,7 @@ class UserSchema(ma.Schema):
     password = fields.String()
     rol_id = fields.Integer()
 class UserSchemaDto(ma.Schema):
-    id = fields.Integer(dump_only=True)
+    id = fields.Integer(dump_only=False)
     username = fields.String()
     email = fields.String()
 
@@ -45,9 +45,7 @@ class EmpresaSchema(ma.Schema):
     ciudad = fields.String()
     telefono = fields.String()
     rubro = ma.Nested(RubroSchema, many=False)
-    rubro_id = fields.Integer()
-    usuario = ma.Nested(UserSchema, many=False)
-    usuario_id = fields.Integer()
+    usuario = ma.Nested(UserSchemaDto, many=False)
 
 
 class ProductoSchema(ma.Schema):

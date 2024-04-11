@@ -151,7 +151,7 @@ class Empresa(db.Model, BaseModelMixin):
     ciudad = Column(String, nullable=True)
     telefono = Column(String, nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'),nullable=False)
-    user = db.relationship("User")
+    usuario = db.relationship("User")
     def __init__(self, nombre, usuario_id, rubro_id ):
         self.nombre = nombre
         self.user_id = usuario_id

@@ -2,7 +2,7 @@ from flask import request, Blueprint, abort
 from flask_jwt_extended import jwt_required, get_jwt
 from flask_restful import Api, Resource
 from schemas import EmpresaSchema, RolPermisoSchema
-from models import Empresa, Permiso
+from models import Empresa, Permiso, Rubro, User
 from db import db
 from flask_jwt_extended import get_jwt_identity
 import json
@@ -68,8 +68,24 @@ class EmpresaResource(Resource):
 
         data = request.get_json()
         record_dict = empresa_serializer.load(data)
+
         r.nombre = record_dict['nombre']
         r.descripcion = record_dict['descripcion']
+        r.ciudad = record_dict['ciudad']
+        r.frase = record_dict['frase']
+        r.direccion = record_dict['direccion']
+        r.telefono = record_dict['telefono']
+
+        rubro = Rubro.get_by_id(record_dict['rubro']['id'])
+        if rubro is None:
+            return {"message": "No existe Rubro Id", "data": id}, 404
+        r.rubro_id = record_dict['rubro']['id']
+
+        u = User.get_by_id(record_dict['usuario']['id'])
+        if u is None:
+            return {"message": "No existe Usuario Id", "data": id}, 404
+        r.user_id = record_dict['usuario']['id']
+
         r.save()
         resp = empresa_serializer.dump(r)
         return {"message": "Actualizado Ok", "data": resp}, 200
