@@ -117,6 +117,8 @@ class Producto(db.Model, BaseModelMixin):
     id = Column(Integer, primary_key=True)
     categoria_id = db.Column(db.Integer, db.ForeignKey('categoria.id'))
     categoria = db.relationship("Categoria")
+    marca_id = db.Column(db.Integer, db.ForeignKey('marca.id'))
+    marca = db.relationship("Marca")
     nombre = Column(String, nullable=False)
     descripcion = Column(String, nullable=False)
     precio = Column(Float)

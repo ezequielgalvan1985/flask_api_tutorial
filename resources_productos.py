@@ -41,6 +41,7 @@ class ProductoListResource(Resource):
 class ProductoResource(Resource):
     def get(self, id):
         r = Producto.get_by_id(id)
+
         if r is None:
             abort(404, "No se encontro Producto")
         resp = producto_serializer.dump(r)
@@ -63,9 +64,15 @@ class ProductoResource(Resource):
         r.nombre = record_dict['nombre']
         r.descripcion = record_dict['descripcion']
         r.precio = record_dict['precio']
+        r.precio_oferta = record_dict['precio_oferta']
+
         r.categoria = Categoria.get_by_id(record_dict['categoria']['id'])
         if r.categoria is None:
             abort(404, "No se encontro Categoria")
+
+        r.marca = Marca.get_by_id(record_dict['marca']['id'])
+        if r.marca is None:
+            abort(404, "No se encontro Marca")
 
         r.save()
         resp = producto_serializer.dump(r)
