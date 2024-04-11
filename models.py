@@ -161,3 +161,25 @@ class Empresa(db.Model, BaseModelMixin):
 
     def __str__(self):
         return self.nombre
+
+class Publicidad(db.Model, BaseModelMixin):
+    id = Column(Integer, primary_key=True)
+    titulo = Column(String, nullable=False)
+    descripcion = Column(String, nullable=True)
+    cantidad = Column(Float, nullable=True)
+    empresa_id = db.Column(db.Integer, db.ForeignKey('empresa.id'))
+    empresa = db.relationship("Empresa")
+    producto_id = db.Column(db.Integer, db.ForeignKey('producto.id'), nullable=False)
+    producto = db.relationship("Producto")
+    precio = Column(Float, nullable=True)
+    porcentaje = Column(Float, nullable=True)
+    def __init__(self, titulo,descripcion, empresa_id, producto_id ):
+        self.titulo = titulo
+        self.descripcion = descripcion
+        self.empresa_id = empresa_id
+        self.producto_id = producto_id
+    def __repr__(self):
+        return f'Empresa({self.titulo})'
+
+    def __str__(self):
+        return self.titulo

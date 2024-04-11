@@ -4,16 +4,17 @@ from flask_restful import Api, abort
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 from werkzeug.security import check_password_hash
-from models import User, Permiso, RolPermiso, Categoria, Empresa
+from models import User, Permiso, RolPermiso, Categoria, Empresa, Producto
 from resources_empresas import empresas_blueprint, empresa_serializer
 from resources_marcas import marcas_blueprint
 from resources_permisos import permisos_blueprint
+from resources_publicidades import publicidades_blueprint
 from resources_roles import roles_blueprint
 from resources_rolpermisos import rolpermisos_serializer, rolpermisos_blueprint
 from resources_rubros import rubros_blueprint
 from resources_users import users_blueprint, user_serializer
 from resources_categorias import categorias_blueprint, categoria_serializer
-from resources_productos import productos_blueprint
+from resources_productos import productos_blueprint, producto_serializer
 from db import db
 from schemas import UserSchemaDto, PermisoSchema, RolPermisoSchema
 from flask import Flask
@@ -137,6 +138,16 @@ def empresasFindByUserId(user_id):
 
 
 
+@app.route("/api/v1.0/productos/consultas/findbyempresa/<int:empresa_id>", methods=["GET"])
+@jwt_required()
+def productosFindByEmpresaId(empresa_id):
+    r=Producto.query.filter_by(empresa_id=empresa_id).all()
+    if r is None:
+        return abort(500, "No existe Empresa para el Empresa "+ empresa_id)
+    resp = producto_serializer.dump(r, many=True)
+    return resp, 200
+
+
 ma = Marshmallow()
 migrate = Migrate()
 
@@ -163,6 +174,7 @@ app.register_blueprint(rolpermisos_blueprint)
 app.register_blueprint(rubros_blueprint)
 app.register_blueprint(marcas_blueprint)
 app.register_blueprint(empresas_blueprint)
+app.register_blueprint(publicidades_blueprint)
 
 
 

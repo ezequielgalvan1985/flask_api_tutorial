@@ -71,3 +71,12 @@ class RolPermisoSchema(ma.Schema):
     rol_id = fields.Integer()
     permiso_id = fields.Integer()
 
+class PublicidadSchema(ma.Schema):
+    id = fields.Integer(dump_only=False)
+    titulo = fields.String()
+    descripcion = fields.String()
+    cantidad =fields.Float()
+    precio = fields.Float()
+    descuento = fields.Float()
+    empresa = ma.Nested(EmpresaSchema, many=False)
+    producto= ma.Nested(ProductoSchema, many=False)
