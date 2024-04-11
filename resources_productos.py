@@ -1,7 +1,8 @@
 from flask import request, Blueprint, abort
+from flask_cors import cross_origin
 from flask_restful import Api, Resource
 from schemas import ProductoSchema
-from models import Producto, Categoria
+from models import Producto, Categoria, Empresa, Marca
 from db import db
 producto_serializer = ProductoSchema()
 productos_blueprint = Blueprint('productos_blueprint', __name__)
@@ -15,16 +16,25 @@ class ProductoListResource(Resource):
         return result
 
     def post(self):
+        print("aqui_entro")
         data = request.get_json()
+        print("aqui_entro2")
+        print(data)
         record_dict = producto_serializer.load(data)
+        print("aqui_entro3")
+
         producto = Producto(nombre=record_dict['nombre'],
                             descripcion=record_dict['descripcion'],
                             precio = record_dict['precio'])
         producto.categoria = Categoria.get_by_id(record_dict['categoria']['id'])
+        producto.empresa = Empresa.get_by_id(record_dict['empresa']['id'])
+        producto.marca = Marca.get_by_id(record_dict['marca']['id'])
+        producto.precio_oferta=record_dict['precio_oferta']
         if producto.categoria is None:
             abort(404, "No se encontro Categoria")
         producto.save()
         resp = producto_serializer.dump(producto)
+        print("aqui_entro3")
         return resp, 201
 
 

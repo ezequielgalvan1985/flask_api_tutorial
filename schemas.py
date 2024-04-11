@@ -6,7 +6,7 @@ class UserSchema(ma.Schema):
     username = fields.String()
     email = fields.String()
     password = fields.String()
-    rolId = fields.Integer()
+    rol_id = fields.Integer()
 class UserSchemaDto(ma.Schema):
     id = fields.Integer(dump_only=True)
     username = fields.String()
@@ -23,32 +23,13 @@ class CategoriaSchema(ma.Schema):
     id = fields.Integer(dump_only=False)
     nombre = fields.String()
     descripcion = fields.String()
-    rubroId = fields.Integer()
+    rubro_id = fields.Integer()
 
 class MarcaSchema(ma.Schema):
     id = fields.Integer(dump_only=False)
     nombre = fields.String()
     descripcion = fields.String()
 
-
-class ProductoSchema(ma.Schema):
-    id = fields.Integer(dump_only=True)
-    nombre = fields.String()
-    descripcion = fields.String()
-    precio = fields.Float()
-    categoria = ma.Nested(CategoriaSchema, many=False)
-
-
-class RolSchema(ma.Schema):
-    id = fields.Integer(dump_only=False)
-    nombre = fields.String()
-    descripcion = fields.String()
-
-
-class RolPermisoSchema(ma.Schema):
-    id = fields.Integer(dump_only=False)
-    rolId = fields.Integer()
-    permisoId = fields.Integer()
 
 class RubroSchema(ma.Schema):
     id = fields.Integer(dump_only=False)
@@ -67,3 +48,26 @@ class EmpresaSchema(ma.Schema):
     rubro_id = fields.Integer()
     usuario = ma.Nested(UserSchema, many=False)
     usuario_id = fields.Integer()
+
+
+class ProductoSchema(ma.Schema):
+    id = fields.Integer(dump_only=False)
+    nombre = fields.String()
+    descripcion = fields.String()
+    precio = fields.Float()
+    categoria = ma.Nested(CategoriaSchema, many=False)
+    marca = ma.Nested(MarcaSchema, many=False)
+    empresa= ma.Nested(EmpresaSchema, many=False)
+    precio_oferta = fields.Float()
+
+class RolSchema(ma.Schema):
+    id = fields.Integer(dump_only=False)
+    nombre = fields.String()
+    descripcion = fields.String()
+
+
+class RolPermisoSchema(ma.Schema):
+    id = fields.Integer(dump_only=False)
+    rol_id = fields.Integer()
+    permiso_id = fields.Integer()
+

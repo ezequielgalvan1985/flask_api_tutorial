@@ -9,7 +9,7 @@ class User(db.Model, BaseModelMixin):
     username: Mapped[str] = mapped_column(unique=True)
     email: Mapped[str]
     password = db.Column(db.String(80))
-    rolId = db.Column(db.Integer, db.ForeignKey('rol.id'))
+    rol_id = db.Column(db.Integer, db.ForeignKey('rol.id'))
 
     def __init__(self, username, email):
         self.username = username
@@ -52,15 +52,15 @@ class Permiso(db.Model, BaseModelMixin):
 
 class RolPermiso(db.Model, BaseModelMixin):
     id: Mapped[int] = mapped_column(primary_key=True)
-    rolId = db.Column(db.Integer, db.ForeignKey('rol.id'))
-    permisoId = db.Column(db.Integer, db.ForeignKey('permiso.id'))
+    rol_id = db.Column(db.Integer, db.ForeignKey('rol.id'))
+    permiso_id = db.Column(db.Integer, db.ForeignKey('permiso.id'))
 
-    def __init__(self, rolId, permisoId):
-        self.rolId = rolId
-        self.permisoId = permisoId
+    def __init__(self, rol_id, permiso_id):
+        self.rol_id = rol_id
+        self.permiso_id = permiso_id
 
     def __repr__(self):
-        return f'Rol ({self.rolId}) - Permiso ({self.permisoId})'
+        return f'Rol ({self.rol_id}) - Permiso ({self.permiso_id})'
 
 
 
@@ -68,7 +68,7 @@ class Categoria(db.Model, BaseModelMixin):
     id: Mapped[int] = mapped_column(primary_key=True)
     nombre: Mapped[str] = mapped_column(unique=True)
     descripcion: Mapped[str]
-    rubroId = db.Column(db.Integer, db.ForeignKey('rubro.id'))
+    rubro_id = db.Column(db.Integer, db.ForeignKey('rubro.id'))
 
     def __init__(self, nombre, descripcion):
         self.nombre = nombre
@@ -120,6 +120,9 @@ class Producto(db.Model, BaseModelMixin):
     nombre = Column(String, nullable=False)
     descripcion = Column(String, nullable=False)
     precio = Column(Float)
+    empresa_id = db.Column(db.Integer, db.ForeignKey('empresa.id'))
+    empresa = db.relationship("Empresa")
+    precio_oferta = Column(Float)
 
     def __init__(self, nombre, descripcion,precio):
         self.nombre = nombre

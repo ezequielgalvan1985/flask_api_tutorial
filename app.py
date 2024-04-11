@@ -35,7 +35,7 @@ ERROR_404_HELP = False
 
 #configuracion
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, resources={r"/api/*": {"origins": ["http://localhost:8100", "http://127.0.0.1:8100"]}})
 
 #app.config['CORS_HEADERS'] = 'Content-Type'
 
@@ -90,14 +90,14 @@ def login():
     if not check_password_hash(user.password, record_dict['password']):
         abort(400, "Usuario o contraseña Invalido")
     #setear los permisos
-    permisos = RolPermiso.query.filter_by(rolId=user.rolId).all()
+    permisos = RolPermiso.query.filter_by(rol_id=user.rol_id).all()
 
     rolPermiso_serializer = RolPermisoSchema()
     permisosJson = rolPermiso_serializer.dump(permisos,many=True)
 
     additional_claims = {"permisos": permisosJson}
     access_token = create_access_token(identity=user, additional_claims=additional_claims)
-    return {"access_token":access_token,"login":user.username, "userId":user.id},200
+    return {"access_token":access_token,"login":user.username, "user_id":user.id},200
 
 
 
@@ -117,7 +117,7 @@ def who_am_i():
 @app.route("/api/v1.0/categorias/consultas/findbyrubro/<int:rubro_id>", methods=["GET"])
 @jwt_required()
 def categoriasFindByRubro(rubro_id):
-    c=Categoria.query.filter_by(rubroId=rubro_id).all()
+    c=Categoria.query.filter_by(rubro_id=rubro_id).all()
     if c is None:
         return abort(500, "No existen Categorias para el Rubro "+ rubro_id)
     resp = categoria_serializer.dump(c,many=True)

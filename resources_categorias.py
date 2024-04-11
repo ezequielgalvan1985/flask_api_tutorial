@@ -17,6 +17,7 @@ class CategoriaListResource(Resource):
     def get(self):
         claims = get_jwt()
         acceso = False
+        '''
         permisoRequerido= Permiso.query.filter_by(recurso='categorias').first()
         if permisoRequerido is None:
             return abort(500, "NO Existe Permiso Categoria")
@@ -27,7 +28,7 @@ class CategoriaListResource(Resource):
 
         if acceso is False:
             return abort(403, "Usuario no esta Autorizado")
-
+        '''
         categorias = db.session.execute(db.select(Categoria).order_by(Categoria.nombre)).scalars()
         result = categoria_serializer.dump(categorias, many=True)
         return result
@@ -37,7 +38,7 @@ class CategoriaListResource(Resource):
         record_dict = categoria_serializer.load(data)
         categoria = Categoria(nombre=record_dict['nombre'],
                               descripcion=record_dict['descripcion'])
-        categoria.rubroId = record_dict['rubroId']
+        categoria.rubro_id = record_dict['rubro_id']
 
         categoria.save()
         resp = categoria_serializer.dump(categoria)

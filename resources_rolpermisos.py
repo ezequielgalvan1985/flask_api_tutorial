@@ -12,15 +12,15 @@ api = Api(rolpermisos_blueprint)
 
 class RolPermisoListResource(Resource):
     def get(self):
-        rolpermisos = db.session.execute(db.select(RolPermiso).order_by(RolPermiso.rolId)).scalars()
+        rolpermisos = db.session.execute(db.select(RolPermiso).order_by(RolPermiso.rol_id)).scalars()
         result = rolpermisos_serializer.dump(rolpermisos, many=True)
         return result
 
     def post(self):
         data = request.get_json()
         record_dict = rolpermisos_serializer.load(data)
-        rolpermisos = RolPermiso(rolId=record_dict['rolId'],
-                              permisoId=record_dict['permisoId'])
+        rolpermisos = RolPermiso(rol_id=record_dict['rol_id'],
+                              permiso_id=record_dict['permiso_id'])
         rolpermisos.save()
         resp = rolpermisos_serializer.dump(rolpermisos)
         return resp, 201
