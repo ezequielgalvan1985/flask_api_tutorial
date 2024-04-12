@@ -21,6 +21,27 @@ class User(db.Model, BaseModelMixin):
     def __str__(self):
         return f'{self.username} {self.email}'
 
+class Datopersonal(db.Model, BaseModelMixin):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    nombre = db.Column(db.String(30))
+    apellido = db.Column(db.String(30))
+    direccion = db.Column(db.String(50))
+    ciudad = db.Column(db.String(50))
+    telefono= db.Column(db.String(30))
+    user = db.relationship("User")
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    def __init__(self, nombre):
+        self.nombre = nombre
+
+
+    def __repr__(self):
+        return f'Datos Personales ({self.nombre} )'
+
+    def __str__(self):
+        return f'{self.nombre} {self.apellido}'
+
+
 class Rol(db.Model, BaseModelMixin):
     id: Mapped[int] = mapped_column(primary_key=True)
     nombre: Mapped[str] = mapped_column(unique=True)

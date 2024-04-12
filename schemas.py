@@ -12,6 +12,16 @@ class UserSchemaDto(ma.Schema):
     username = fields.String()
     email = fields.String()
 
+class DatoPersonalSchema(ma.Schema):
+    id = fields.Integer(dump_only=False)
+    nombre = fields.String()
+    apellido = fields.String()
+    direccion = fields.String()
+    ciudad = fields.String()
+    telefono = fields.String()
+    user = ma.Nested(UserSchemaDto, many=False)
+
+
 class PermisoSchema(ma.Schema):
     id = fields.Integer(dump_only=True)
     nombre = fields.String()

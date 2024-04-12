@@ -4,7 +4,8 @@ from flask_restful import Api, abort
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 from werkzeug.security import check_password_hash
-from models import User, Permiso, RolPermiso, Categoria, Empresa, Producto
+from models import User, Permiso, RolPermiso, Categoria, Empresa, Producto, Datopersonal
+from resources_datospersonales import datospersonales_blueprint, datopersonal_serializer
 from resources_empresas import empresas_blueprint, empresa_serializer
 from resources_marcas import marcas_blueprint
 from resources_permisos import permisos_blueprint
@@ -136,8 +137,6 @@ def empresasFindByUserId(user_id):
     resp = empresa_serializer.dump(r, many=False)
     return resp, 200
 
-
-
 @app.route("/api/v1.0/productos/consultas/findbyempresa/<int:empresa_id>", methods=["GET"])
 @jwt_required()
 def productosFindByEmpresaId(empresa_id):
@@ -147,6 +146,15 @@ def productosFindByEmpresaId(empresa_id):
     resp = producto_serializer.dump(r, many=True)
     return resp, 200
 
+@app.route("/api/v1.0/datospersonales/consultas/findbyuser/<int:id>", methods=["GET"])
+@jwt_required()
+def datospersonalesFindByUserId(id):
+    r=Datopersonal.query.filter_by(id=id).first()
+    if r is None:
+        return abort(500, "No existen Datos para el Usuario "+ id)
+
+    resp = datopersonal_serializer.dump(r, many=False)
+    return resp, 200
 
 ma = Marshmallow()
 migrate = Migrate()
@@ -175,6 +183,7 @@ app.register_blueprint(rubros_blueprint)
 app.register_blueprint(marcas_blueprint)
 app.register_blueprint(empresas_blueprint)
 app.register_blueprint(publicidades_blueprint)
+app.register_blueprint(datospersonales_blueprint)
 
 
 
