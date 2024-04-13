@@ -62,8 +62,15 @@ class DatopersonalResource(Resource):
         data = request.get_json()
         record_dict = datopersonal_serializer.load(data)
         r.nombre = record_dict['nombre']
-        r.descripcion = record_dict['descripcion']
-        r.rubroId = record_dict['rubro_id']
+        r.user = User.get_by_id(record_dict['user']['id'])
+        if r.user is None:
+            return {"mensaje": "Usuario no existe"}, 500
+
+        r.apellido = record_dict['apellido']
+        r.direccion = record_dict['direccion']
+        r.ciudad = record_dict['ciudad']
+        r.nombre = record_dict['nombre']
+        r.telefono = record_dict['telefono']
         r.save()
         resp = datopersonal_serializer.dump(r)
         return {"message": "Actualizado Ok", "data": resp}, 200
