@@ -1,26 +1,27 @@
 from datetime import timedelta
-from flask import Flask, request, jsonify
+from flask import request, jsonify
 from flask_restful import Api, abort
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 from werkzeug.security import check_password_hash
-from models import User, Permiso, RolPermiso, Categoria, Empresa, Producto, Datopersonal
-from resources_datospersonales import datospersonales_blueprint, datopersonal_serializer
-from resources_empresas import empresas_blueprint, empresa_serializer
-from resources_marcas import marcas_blueprint
-from resources_pedidos import pedidos_blueprint
-from resources_permisos import permisos_blueprint
-from resources_publicidades import publicidades_blueprint
-from resources_roles import roles_blueprint
-from resources_rolpermisos import rolpermisos_serializer, rolpermisos_blueprint
-from resources_rubros import rubros_blueprint
-from resources_users import users_blueprint, user_serializer
-from resources_categorias import categorias_blueprint, categoria_serializer
-from resources_productos import productos_blueprint, producto_serializer
+from models import User, RolPermiso, Categoria, Empresa, Producto, Datopersonal
+from resources.consultas.resources_urls_categorias import categorias_findbyrubro_blueprint
+from resources.crud.resources_datospersonales import datospersonales_blueprint, datopersonal_serializer
+from resources.crud.resources_empresas import empresas_blueprint, empresa_serializer
+from resources.crud.resources_marcas import marcas_blueprint
+from resources.crud.resources_pedidos import pedidos_blueprint
+from resources.crud.resources_permisos import permisos_blueprint
+from resources.crud.resources_publicidades import publicidades_blueprint
+from resources.crud.resources_roles import roles_blueprint
+from resources.crud.resources_rolpermisos import rolpermisos_blueprint
+from resources.crud.resources_rubros import rubros_blueprint
+from resources.crud.resources_users import users_blueprint, user_serializer
+from resources.crud.resources_categorias import categorias_blueprint, categoria_serializer
+from resources.crud.resources_productos import productos_blueprint, producto_serializer
 from db import db
-from schemas import UserSchemaDto, PermisoSchema, RolPermisoSchema
+from schemas import UserSchemaDto, RolPermisoSchema
 from flask import Flask
-from flask_jwt_extended import JWTManager, create_access_token, create_refresh_token, get_jwt_identity, current_user, \
+from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, current_user, \
     get_jwt
 from flask_jwt_extended import jwt_required
 from flask_cors import CORS, cross_origin
@@ -117,26 +118,7 @@ def who_am_i():
 
 #metodos personalizados
 #Consultas Categorias
-@app.route("/api/v1.0/categorias/consultas/findbyrubro/<int:rubro_id>", methods=["GET"])
-@jwt_required()
-def categoriasFindByRubro(rubro_id):
-    c=Categoria.query.filter_by(rubro_id=rubro_id).all()
-    if c is None:
-        return abort(500, "No existen Categorias para el Rubro "+ rubro_id)
-    resp = categoria_serializer.dump(c,many=True)
-    return resp,200
 
-
-
-@app.route("/api/v1.0/empresas/consultas/findbyuser/<int:user_id>", methods=["GET"])
-@jwt_required()
-def empresasFindByUserId(user_id):
-    r=Empresa.query.filter_by(user_id=user_id).first()
-    #empresa_serializer.dump(r)
-    if r is None:
-        return abort(500, "No existe Empresa para el Usuario "+ user_id)
-    resp = empresa_serializer.dump(r, many=False)
-    return resp, 200
 
 @app.route("/api/v1.0/productos/consultas/findbyempresa/<int:empresa_id>", methods=["GET"])
 @jwt_required()
@@ -186,7 +168,7 @@ app.register_blueprint(empresas_blueprint)
 app.register_blueprint(publicidades_blueprint)
 app.register_blueprint(datospersonales_blueprint)
 app.register_blueprint(pedidos_blueprint)
-
+app.register_blueprint(categorias_findbyrubro_blueprint)
 
 
 
