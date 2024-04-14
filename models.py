@@ -1,4 +1,7 @@
+from typing import List
+
 from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy.orm import relationship
 
 from db import db, BaseModelMixin,Mapped, mapped_column
 
@@ -33,7 +36,6 @@ class Datopersonal(db.Model, BaseModelMixin):
 
     def __init__(self, nombre):
         self.nombre = nombre
-
 
     def __repr__(self):
         return f'Datos Personales ({self.nombre} )'
@@ -206,3 +208,41 @@ class Publicidad(db.Model, BaseModelMixin):
 
     def __str__(self):
         return self.titulo
+
+class Pedido(db.Model, BaseModelMixin):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    fecha = db.Column(db.String(30))
+    estado = db.Column(db.String(1))
+    importeenvio = db.Column(db.Float)
+    direccion = db.Column(db.String(50))
+    items: Mapped[List["Pedidoitem"]] = relationship(back_populates = "pedido", cascade = "all, delete-orphan")
+    empresa_id = db.Column(db.Integer, db.ForeignKey('empresa.id'))
+    empresa = db.relationship("Empresa")
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship("User")
+    def __init__(self, fecha):
+        self.fecha = fecha
+    def __repr__(self):
+        return f'Pedido ({self.fecha} )'
+    def __str__(self):
+        return f'{self.fecha}'
+
+
+class Pedidoitem(db.Model, BaseModelMixin):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    pedido_id = db.Column(db.Integer, db.ForeignKey('pedido.id'))
+    pedido = db.relationship("Pedido")
+    producto_id = db.Column(db.Integer, db.ForeignKey('producto.id'))
+    producto = db.relationship("Producto")
+    cantidad = db.Column(db.Float)
+
+    def __init__(self, producto_id, cantidad, pedido_id):
+        self.producto_id = producto_id
+        self.cantidad = cantidad
+        self.pedido_id = pedido_id
+    def __repr__(self):
+        return f'PedidoItem ({self.pedido_id})'
+
+    def __str__(self):
+        return f'{self.producto_id} {self.pedido_id} {self.cantidad}'
+

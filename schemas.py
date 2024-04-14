@@ -88,3 +88,21 @@ class PublicidadSchema(ma.Schema):
     descuento = fields.Float()
     empresa = ma.Nested(EmpresaSchema, many=False)
     producto= ma.Nested(ProductoSchema, many=False)
+
+
+class PedidoitemSchema(ma.Schema):
+    id = fields.Integer(dump_only=False)
+    pedido_id = fields.Integer()
+    producto_id = fields.Integer()
+    cantidad = fields.Float()
+
+
+class PedidoSchema(ma.Schema):
+    id = fields.Integer(dump_only=False)
+    fecha = fields.String()
+    estado = fields.String()
+    importeenvio = fields.Float()
+    direccion = fields.String()
+    empresa = ma.Nested(EmpresaSchema, many=False)
+    user = ma.Nested(UserSchemaDto, many=False)
+    items = ma.Nested(PedidoitemSchema, many=True)

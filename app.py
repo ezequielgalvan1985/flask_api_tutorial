@@ -8,6 +8,7 @@ from models import User, Permiso, RolPermiso, Categoria, Empresa, Producto, Dato
 from resources_datospersonales import datospersonales_blueprint, datopersonal_serializer
 from resources_empresas import empresas_blueprint, empresa_serializer
 from resources_marcas import marcas_blueprint
+from resources_pedidos import pedidos_blueprint
 from resources_permisos import permisos_blueprint
 from resources_publicidades import publicidades_blueprint
 from resources_roles import roles_blueprint
@@ -184,6 +185,7 @@ app.register_blueprint(marcas_blueprint)
 app.register_blueprint(empresas_blueprint)
 app.register_blueprint(publicidades_blueprint)
 app.register_blueprint(datospersonales_blueprint)
+app.register_blueprint(pedidos_blueprint)
 
 
 
