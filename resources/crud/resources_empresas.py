@@ -92,3 +92,19 @@ class EmpresaResource(Resource):
 
 api.add_resource(EmpresaListResource, '/api/v1.0/empresas',endpoint='empresas_list_resource')
 api.add_resource(EmpresaResource, '/api/v1.0/empresas/<int:id>', endpoint='empresa_resource')
+
+#=======================
+#Metodos Personalizados
+#=======================
+empresas_findbyrubro_blueprint = Blueprint('empresas_findbyrubro_bp', __name__)
+@empresas_findbyrubro_blueprint.route("/api/v1.0/empresas/consultas/findbyuser/<int:user_id>", methods=["GET"])
+@jwt_required()
+def empresasFindByUserId(user_id):
+    r=Empresa.query.filter_by(user_id=user_id).first()
+    #empresa_serializer.dump(r)
+    if r is None:
+        return abort(500, "No existe Empresa para el Usuario "+ user_id)
+    resp = empresa_serializer.dump(r, many=False)
+    return resp, 200
+
+

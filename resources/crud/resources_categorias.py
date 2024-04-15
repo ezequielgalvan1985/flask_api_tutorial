@@ -78,3 +78,15 @@ class CategoriaResource(Resource):
 
 api.add_resource(CategoriaListResource, '/api/v1.0/categorias',endpoint='categorias_list_resource')
 api.add_resource(CategoriaResource, '/api/v1.0/categorias/<int:id>', endpoint='categoria_resource')
+
+#Metodos personalizados
+
+categorias_findbyrubro_blueprint = Blueprint('categorias_findbyrubro_bp', __name__)
+@categorias_findbyrubro_blueprint.route("/api/v1.0/categorias/consultas/findbyrubro/<int:rubro_id>", methods=["GET"])
+@jwt_required()
+def categoriasFindByRubro(rubro_id):
+    c=Categoria.query.filter_by(rubro_id=rubro_id).all()
+    if c is None:
+        return abort(500, "No existen Categorias para el Rubro "+ rubro_id)
+    resp = categoria_serializer.dump(c,many=True)
+    return resp,200
