@@ -101,11 +101,28 @@ class PublicidadSchema(ma.Schema):
     producto= ma.Nested(ProductoSchema, many=False)
 
 
-class PedidoitemSchema(ma.Schema):
+class PedidoItemSchemaDto(ma.Schema):
+    id = fields.Integer(dump_only=False)
+    pedido_id = fields.Integer()
+    producto_id = fields.Integer()
+    cantidad = fields.Float()
+
+class PedidoSchemaDto(ma.Schema):
+    id = fields.Integer(dump_only=False)
+    fecha = fields.String()
+    estado = fields.String()
+    importeenvio = fields.Float()
+    direccion = fields.String()
+    empresa = ma.Nested(EmpresaSchemaDto, many=False)
+    user = ma.Nested(UserSchemaDto, many=False)
+    items = ma.Nested(PedidoItemSchemaDto, many=True)
+
+
+class PedidoItemSchema(ma.Schema):
     id = fields.Integer(dump_only=False)
     cantidad = fields.Integer()
     producto = ma.Nested(ProductoSchema, many=False)
-    pedido = fields.Integer()
+    pedido = ma.Nested(PedidoSchemaDto, many=False)
 
 
 
@@ -117,24 +134,14 @@ class PedidoSchema(ma.Schema):
     direccion = fields.String()
     empresa = ma.Nested(EmpresaSchema, many=False)
     user = ma.Nested(UserSchema, many=False)
-    items = ma.Nested(PedidoitemSchema, many=True)
+    items = ma.Nested(PedidoItemSchema, many=True)
+
+
+
+
+
+
 
 class PedidoFindByUserEmpresaRequestSchemaDto(ma.Schema):
     user_id = fields.Integer()
     empresa_id= fields.Integer()
-
-class PedidoItemSchemaDto(ma.Schema):
-    id = fields.Integer(dump_only=False)
-    pedido_id = fields.Integer()
-    producto_id = fields.Integer()
-    cantidad = fields.Float()
-
-class PedidoDtoSchema(ma.Schema):
-    id = fields.Integer(dump_only=False)
-    fecha = fields.String()
-    estado = fields.String()
-    importeenvio = fields.Float()
-    direccion = fields.String()
-    empresa = ma.Nested(EmpresaSchemaDto, many=False)
-    user = ma.Nested(UserSchemaDto, many=False)
-    items = ma.Nested(PedidoitemSchema, many=True)
