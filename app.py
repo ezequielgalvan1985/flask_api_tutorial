@@ -9,7 +9,7 @@ from resources.crud.resources_datospersonales import datospersonales_blueprint, 
 from resources.crud.resources_empresas import empresas_blueprint, empresa_serializer, empresas_findbyrubro_blueprint
 from resources.crud.resources_marcas import marcas_blueprint
 from resources.crud.resources_pedidos import pedidos_blueprint, pedidos_getultimopendiente_blueprint, \
-    pedidos_pendientesfindbyuser_blueprint, pedidos_findbyuser_blueprint
+    pedidos_pendientesfindbyuser_blueprint, pedidos_findbyuser_blueprint, pedidos_findultpendbyuserandempresa_blueprint
 from resources.crud.resources_permisos import permisos_blueprint
 from resources.crud.resources_publicidades import publicidades_blueprint
 from resources.crud.resources_roles import roles_blueprint
@@ -174,6 +174,7 @@ app.register_blueprint(empresas_findbyrubro_blueprint)
 app.register_blueprint(pedidos_getultimopendiente_blueprint)
 app.register_blueprint(pedidos_pendientesfindbyuser_blueprint)
 app.register_blueprint(pedidos_findbyuser_blueprint)
+app.register_blueprint(pedidos_findultpendbyuserandempresa_blueprint)
 #urls para hacer pruebas
 
 

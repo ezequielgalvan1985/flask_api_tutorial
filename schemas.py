@@ -96,6 +96,9 @@ class PedidoitemSchema(ma.Schema):
     producto_id = fields.Integer()
     cantidad = fields.Float()
 
+class PedidoFindByUserEmpresaRequestDtoSchema(ma.Schema):
+    user_id = fields.Integer()
+    empresa_id= fields.Integer()
 
 class PedidoSchema(ma.Schema):
     id = fields.Integer(dump_only=False)
@@ -106,3 +109,10 @@ class PedidoSchema(ma.Schema):
     empresa = ma.Nested(EmpresaSchema, many=False)
     user = ma.Nested(UserSchemaDto, many=False)
     items = ma.Nested(PedidoitemSchema, many=True)
+
+
+class PedidoItemDtoSchema(ma.Schema):
+    id = fields.Integer(dump_only=False)
+    cantidad = fields.Integer()
+    producto = ma.Nested(ProductoSchema, many=False)
+    pedido = ma.Nested(ProductoSchema, many=False)

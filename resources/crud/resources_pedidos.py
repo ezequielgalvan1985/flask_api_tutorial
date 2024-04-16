@@ -3,8 +3,8 @@ from flask_jwt_extended import jwt_required, get_jwt
 from flask_restful import Api, Resource
 from sqlalchemy import desc
 
-from schemas import PedidoSchema, RolPermisoSchema
-from models import Pedido, Permiso, Empresa, User
+from schemas import PedidoSchema, RolPermisoSchema, PedidoFindByUserEmpresaRequestDtoSchema, PedidoItemDtoSchema
+from models import Pedido, Permiso, Empresa, User, Producto
 from db import db
 from flask_jwt_extended import get_jwt_identity
 import json
@@ -116,12 +116,44 @@ def findByUser(user_id):
 
 
 
-pedidos_findbyuserandempresa_blueprint = Blueprint('pedidos_findbyuserandempresa_blueprint', __name__)
-@pedidos_findbyuserandempresa_blueprint.route("/api/v1.0/pedidos/consultas/getbyuser/<int:user_id>", methods=["GET"])
+pedidos_findultpendbyuserandempresa_blueprint = Blueprint('pedidos_findultpendbyuserandempresa_blueprint', __name__)
+
+@pedidos_findultpendbyuserandempresa_blueprint.route("/api/v1.0/pedidos/consultas/findultpendbyuserandempresa", methods=["POST"])
 @jwt_required()
-def findByUserAndEmpresa(user_id):
-    r=Pedido.query.filter_by(user_id=user_id, empresa_id=empresa_id).order_by(desc(Pedido.id)).all()
+def findUltPendByUserAndEmpresa():
+    data = request.get_json()
+    serializer = PedidoFindByUserEmpresaRequestDtoSchema()
+    d = serializer.load(data)
+    if d['user_id'] is None:
+        return abort(500, "No existe Usuario ")
+    if d['empresa_id'] is None:
+        return abort(500, "No existe Empresa ")
+
+    r=Pedido.query.filter_by(user_id=d['user_id'], empresa_id=d['empresa_id']).order_by(desc(Pedido.id)).all()
     if r is None:
-        return abort(500, "No existe Pedido para el Usuario "+ user_id)
+        return abort(500, "No existe Pedido para el Usuario ")
+
+    resp = pedido_serializer.dump(r, many=True)
+    return resp, 200
+
+
+
+pedidos_insertitempedido_blueprint = Blueprint('pedidos_insertitempedido_blueprint', __name__)
+@pedidos_insertitempedido_blueprint.route("/api/v1.0/pedidoitems", methods=["POST"])
+@jwt_required()
+def insertItemPedido():
+    data = request.get_json()
+    serializer = PedidoItemDtoSchema()
+    d = serializer.load(data)
+    p = Producto.get_by_id(d['producto_id'])
+    if p is None:
+        return abort(500, "No existe Producto")
+
+    pedido = Pedido.get_by_id(d['pedido_id'])
+    if pedido is None:
+        return abort(500, "No existe Pedido")
+
+    pedido.items.add
+
     resp = pedido_serializer.dump(r, many=True)
     return resp, 200
