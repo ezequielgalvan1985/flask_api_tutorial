@@ -236,10 +236,6 @@ class Pedidoitem(db.Model, BaseModelMixin):
     producto = db.relationship("Producto")
     cantidad = db.Column(db.Float)
 
-    def __init__(self, producto_id, cantidad, pedido_id):
-        self.producto_id = producto_id
-        self.cantidad = cantidad
-        self.pedido_id = pedido_id
     def __repr__(self):
         return f'PedidoItem ({self.pedido_id})'
 

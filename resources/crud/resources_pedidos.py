@@ -3,8 +3,9 @@ from flask_jwt_extended import jwt_required, get_jwt
 from flask_restful import Api, Resource
 from sqlalchemy import desc
 
-from schemas import PedidoSchema, RolPermisoSchema, PedidoFindByUserEmpresaRequestDtoSchema, PedidoItemDtoSchema
-from models import Pedido, Permiso, Empresa, User, Producto
+from schemas import PedidoSchema, RolPermisoSchema, PedidoFindByUserEmpresaRequestSchemaDto, PedidoItemSchemaDto, \
+    PedidoitemSchema
+from models import Pedido, Permiso, Empresa, User, Producto, Pedidoitem
 from db import db
 from flask_jwt_extended import get_jwt_identity
 import json
@@ -122,7 +123,7 @@ pedidos_findultpendbyuserandempresa_blueprint = Blueprint('pedidos_findultpendby
 @jwt_required()
 def findUltPendByUserAndEmpresa():
     data = request.get_json()
-    serializer = PedidoFindByUserEmpresaRequestDtoSchema()
+    serializer = PedidoFindByUserEmpresaRequestSchemaDto()
     d = serializer.load(data)
     if d['user_id'] is None:
         return abort(500, "No existe Usuario ")
@@ -132,7 +133,6 @@ def findUltPendByUserAndEmpresa():
     r=Pedido.query.filter_by(user_id=d['user_id'], empresa_id=d['empresa_id']).order_by(desc(Pedido.id)).all()
     if r is None:
         return abort(500, "No existe Pedido para el Usuario ")
-
     resp = pedido_serializer.dump(r, many=True)
     return resp, 200
 
@@ -143,17 +143,23 @@ pedidos_insertitempedido_blueprint = Blueprint('pedidos_insertitempedido_bluepri
 @jwt_required()
 def insertItemPedido():
     data = request.get_json()
-    serializer = PedidoItemDtoSchema()
+    serializer = PedidoitemSchema()
     d = serializer.load(data)
-    p = Producto.get_by_id(d['producto_id'])
+    p = Producto.get_by_id(d['producto']['id'])
     if p is None:
         return abort(500, "No existe Producto")
-
-    pedido = Pedido.get_by_id(d['pedido_id'])
+    pedido = Pedido.get_by_id(d['pedido']['id'])
     if pedido is None:
         return abort(500, "No existe Pedido")
-
-    pedido.items.add
-
-    resp = pedido_serializer.dump(r, many=True)
+    if d['cantidad'] <= 0:
+        return abort(500, "Cantidad debe ser mayor a 0")
+    i = Pedidoitem()
+    i.pedido = pedido
+    i.producto = p
+    i.cantidad = d['cantidad']
+    i.save()
+    pedido.get_by_id(pedido.id)
+    responseSerializer = PedidoitemSchema()
+    responseSerializer.dump(pedido)
+    resp = pedido_serializer.dump(pedido, many=False)
     return resp, 200
