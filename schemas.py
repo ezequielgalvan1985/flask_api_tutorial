@@ -34,12 +34,19 @@ class CategoriaSchema(ma.Schema):
     nombre = fields.String()
     descripcion = fields.String()
     rubro_id = fields.Integer()
+class CategoriaSchemaDto(ma.Schema):
+    id = fields.Integer(dump_only=False)
+    nombre = fields.String()
+
 
 class MarcaSchema(ma.Schema):
     id = fields.Integer(dump_only=False)
     nombre = fields.String()
     descripcion = fields.String()
 
+class MarcaSchemaDto(ma.Schema):
+    id = fields.Integer(dump_only=False)
+    nombre = fields.String()
 
 class RubroSchema(ma.Schema):
     id = fields.Integer(dump_only=False)
@@ -65,8 +72,6 @@ class EmpresaSchema(ma.Schema):
 class EmpresaSchemaDto(ma.Schema):
     id = fields.Integer(dump_only=False)
     nombre = fields.String()
-    rubro = ma.Nested(RubroSchemaDto, many=False)
-    usuario = ma.Nested(UserSchemaDto, many=False)
 
 
 class ProductoSchema(ma.Schema):
@@ -77,6 +82,16 @@ class ProductoSchema(ma.Schema):
     categoria = ma.Nested(CategoriaSchema, many=False)
     marca = ma.Nested(MarcaSchema, many=False)
     empresa= ma.Nested(EmpresaSchema, many=False)
+    precio_oferta = fields.Float()
+
+class ProductoSchemaDto(ma.Schema):
+    id = fields.Integer(dump_only=False)
+    nombre = fields.String()
+    descripcion = fields.String()
+    precio = fields.Float()
+    categoria = ma.Nested(CategoriaSchemaDto, many=False)
+    marca = ma.Nested(MarcaSchemaDto, many=False)
+    empresa = ma.Nested(EmpresaSchemaDto, many=False)
     precio_oferta = fields.Float()
 
 class RolSchema(ma.Schema):
@@ -106,6 +121,13 @@ class PedidoItemSchemaDto(ma.Schema):
     pedido_id = fields.Integer()
     producto_id = fields.Integer()
     cantidad = fields.Float()
+    producto = ma.Nested(ProductoSchemaDto, many=False)
+
+
+class PedidoItemUpdRequestSchemaDto(ma.Schema):
+    id = fields.Integer()
+    cantidad = fields.Float()
+    estado = fields.String()
 
 class PedidoSchemaDto(ma.Schema):
     id = fields.Integer(dump_only=False)

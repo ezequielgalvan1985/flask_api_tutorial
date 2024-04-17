@@ -4,7 +4,7 @@ from flask_restful import Api, Resource
 from sqlalchemy import desc
 
 from schemas import PedidoSchema, RolPermisoSchema, PedidoFindByUserEmpresaRequestSchemaDto, PedidoItemSchemaDto, \
-    PedidoItemSchema, PedidoSchemaDto
+    PedidoItemSchema, PedidoSchemaDto, PedidoItemUpdRequestSchemaDto
 from models import Pedido, Permiso, Empresa, User, Producto, Pedidoitem
 from db import db
 from flask_jwt_extended import get_jwt_identity
@@ -167,4 +167,40 @@ def insertItemPedido():
     responseDto = PedidoItemSchemaDto()
     responseDto.dump(pedido)
     resp = pedido_serializer.dump(responseDto, many=False)
+    return resp, 200
+
+
+
+pedidoitem_updcantidad_blueprint = Blueprint('pedidoitem_updrequestdto_blueprint', __name__)
+@pedidoitem_updcantidad_blueprint.route("/api/v1.0/pedidoitems/accion/upd/cantidad", methods=["POST"])
+@jwt_required()
+def pedidoitem_upd_cantidad():
+    data = request.get_json()
+    serializer = PedidoItemUpdRequestSchemaDto()
+    d = serializer.load(data)
+    i = Pedidoitem.get_by_id(d['id'])
+    if i is None:
+        return abort(500, "No existe PedidoItem")
+    if d['cantidad'] <= 0:
+        return abort(500, "Cantidad debe ser mayor a 0")
+    i.cantidad = d['cantidad']
+    i.save()
+    responseDto = PedidoItemSchemaDto()
+    resp = responseDto.dump(i, many=False)
+    return resp, 200
+
+
+pedidos_updestado_blueprint = Blueprint('pedidos_updestado_blueprint', __name__)
+@pedidos_updestado_blueprint.route("/api/v1.0/pedidos/accion/upd/estado", methods=["POST"])
+@jwt_required()
+def pedidos_upd_cantidad():
+    data = request.get_json()
+    serializer = PedidoSchemaDto()
+    d = serializer.load(data)
+    r = Pedido.get_by_id(d['id'])
+    if r is None:
+        return abort(500, "No existe PedidoItem")
+    r.estado = d['estado']
+    r.save()
+    resp = serializer.dump(r, many=False)
     return resp, 200
