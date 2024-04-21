@@ -84,15 +84,12 @@ api.add_resource(PedidoResource, '/api/v1.0/pedidos/<int:id>', endpoint='pedido_
 
 pedido_serializer = PedidoSchema()
 pedidos_getultimopendiente_blueprint = Blueprint('pedidos_getultimopendiente_blueprint', __name__)
-
 @pedidos_getultimopendiente_blueprint.route("/api/v1.0/pedidos/consultas/getultimopendiente/<int:user_id>", methods=["GET"])
 @jwt_required()
 def getUltimoPendiente(user_id):
     r=Pedido.query.filter_by(user_id=user_id, estado="I").order_by(desc(Pedido.id)).first()
-    #r = db.session.execute(db.select(Pedido).order_by(Pedido.id)).first()
-
     if r is None:
-        return abort(500, "No existe Pedido para el Usuario "+ user_id)
+        return {"message":"No existe Pedido para el Usuario "+ str(user_id)},500
     resp = pedido_serializer.dump(r, many=False)
     return resp, 200
 
@@ -104,7 +101,8 @@ pedidos_pendientesfindbyuser_blueprint = Blueprint('pedidos_pendientesfindbyuser
 def pendientesFindByUser(user_id):
     r=Pedido.query.filter_by(user_id=user_id, estado="I").order_by(desc(Pedido.id)).all()
     if r is None:
-        return abort(500, "No existe Pedido para el Usuario "+ user_id)
+        return {"message":"No existe Pedido para el Usuario "+ user_id},500
+
     pedido_serializer = PedidoSchemaDto()
     resp = pedido_serializer.dump(r, many=True)
     return resp, 200
@@ -116,7 +114,7 @@ pedidos_findbyuser_blueprint = Blueprint('pedidos_findbyuser_blueprint', __name_
 def findByUser(user_id):
     r=Pedido.query.filter_by(user_id=user_id).order_by(desc(Pedido.id)).all()
     if r is None:
-        return abort(500, "No existe Pedido para el Usuario "+ user_id)
+        return {"message":"No existe Pedido para el Usuario "+ user_id},500
     resp = pedido_serializer.dump(r, many=True)
     return resp, 200
 
