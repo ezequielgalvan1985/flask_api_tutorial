@@ -136,7 +136,7 @@ class PedidoSchemaDto(ma.Schema):
     importeenvio = fields.Float()
     direccion = fields.String()
     empresa = ma.Nested(EmpresaSchemaDto, many=False)
-    user = ma.Nested(UserSchemaDto, many=False)
+    usuario = ma.Nested(UserSchemaDto, many=False)
     items = ma.Nested(PedidoItemSchemaDto, many=True)
 
 
@@ -167,3 +167,10 @@ class PedidoSchema(ma.Schema):
 class PedidoFindByUserEmpresaRequestSchemaDto(ma.Schema):
     user_id = fields.Integer()
     empresa_id= fields.Integer()
+
+
+
+
+class VentasPorProductosSchemaDto(ma.Schema):
+    empresa_id = fields.Integer()
+    anio = fields.Integer()

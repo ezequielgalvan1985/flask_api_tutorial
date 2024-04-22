@@ -1,14 +1,24 @@
+from enum import Enum
+
 from flask import request, Blueprint, abort
 from flask_jwt_extended import jwt_required, get_jwt
 from flask_restful import Api, Resource
 from sqlalchemy import desc
-
 from schemas import PedidoSchema, RolPermisoSchema, PedidoFindByUserEmpresaRequestSchemaDto, PedidoItemSchemaDto, \
-    PedidoItemSchema, PedidoSchemaDto, PedidoItemUpdRequestSchemaDto
+    PedidoItemSchema, PedidoSchemaDto, PedidoItemUpdRequestSchemaDto, VentasPorProductosSchemaDto
 from models import Pedido, Permiso, Empresa, User, Producto, Pedidoitem
 from db import db
 from flask_jwt_extended import get_jwt_identity
 import json
+
+class Estados(Enum):
+    PENDIENTE=0
+    CONFIRMADO=1
+    ENPREPARACION=2
+    PREPARADO=3
+    ENCAMINO=4
+    ENTREGADO=5
+
 
 pedido_serializer = PedidoSchema()
 pedidos_blueprint = Blueprint('pedidos_blueprint', __name__)
@@ -18,31 +28,35 @@ api = Api(pedidos_blueprint)
 class PedidoListResource(Resource):
     def get(self):
         pedidos = db.session.execute(db.select(Pedido).order_by(Pedido.id)).scalars()
+        pedido_serializer = PedidoSchema()
         result = pedido_serializer.dump(pedidos, many=True)
         return result
 
     def post(self):
-        data = request.get_json()
-        record_dict = pedido_serializer.load(data)
-        pedido = Pedido(record_dict['fecha'])
-        pedido.estado = record_dict['estado']
-        pedido.importeenvio = record_dict['importeenvio']
-        pedido.direccion = record_dict['direccion']
-        pedido.empresa = Empresa.get_by_id(record_dict['empresa']['id'])
-        pedido.user = User.get_by_id(record_dict['user']['id'])
+        try:
+            data = request.get_json()
+            pedido_serializer = PedidoSchemaDto()
+            record_dict = pedido_serializer.load(data)
+            pedido = Pedido(record_dict['fecha'])
+            pedido.estado = record_dict['estado']
+            pedido.importeenvio = record_dict['importeenvio']
+            pedido.direccion = record_dict['direccion']
+            pedido.empresa = Empresa.get_by_id(record_dict['empresa']['id'])
+            pedido.user = User.get_by_id(record_dict['usuario']['id'])
 
-        pedido.save()
-        responseDto = PedidoSchemaDto()
-        resp = responseDto.dump(pedido)
-        return resp, 201
-
+            pedido.save()
+            responseDto = PedidoSchemaDto()
+            resp = responseDto.dump(pedido)
+            return pedido.id, 201
+        except BaseException as e:
+            return {"message":"Error "+ str(e)},500
 
 class PedidoResource(Resource):
     def get(self, id):
         r = Pedido.get_by_id(id)
         if r is None:
             return {"mensaje": "pedido no existe"}, 404
-        responseDto = PedidoSchemaDto()
+        responseDto = PedidoSchema()
         resp = responseDto.dump(r)
 
         return resp
@@ -87,9 +101,10 @@ pedidos_getultimopendiente_blueprint = Blueprint('pedidos_getultimopendiente_blu
 @pedidos_getultimopendiente_blueprint.route("/api/v1.0/pedidos/consultas/getultimopendiente/<int:user_id>", methods=["GET"])
 @jwt_required()
 def getUltimoPendiente(user_id):
-    r=Pedido.query.filter_by(user_id=user_id, estado="I").order_by(desc(Pedido.id)).first()
+    print("estado: "+str(Estados.PENDIENTE.value) )
+    r=Pedido.query.filter_by(user_id=user_id, estado=str(Estados.PENDIENTE.value)).order_by(desc(Pedido.id)).first()
     if r is None:
-        return {"message":"No existe Pedido para el Usuario "+ str(user_id)},500
+        return {"message":"No existe Pedido para el Usuario "+ str(user_id)},200
     resp = pedido_serializer.dump(r, many=False)
     return resp, 200
 
@@ -99,10 +114,9 @@ pedidos_pendientesfindbyuser_blueprint = Blueprint('pedidos_pendientesfindbyuser
 @pedidos_pendientesfindbyuser_blueprint.route("/api/v1.0/pedidos/consultas/findpendientesbyuser/<int:user_id>", methods=["GET"])
 @jwt_required()
 def pendientesFindByUser(user_id):
-    r=Pedido.query.filter_by(user_id=user_id, estado="I").order_by(desc(Pedido.id)).all()
+    r=Pedido.query.filter_by(user_id=user_id, estado=str(Estados.PENDIENTE.value)).order_by(desc(Pedido.id)).all()
     if r is None:
         return {"message":"No existe Pedido para el Usuario "+ user_id},500
-
     pedido_serializer = PedidoSchemaDto()
     resp = pedido_serializer.dump(r, many=True)
     return resp, 200
@@ -128,13 +142,12 @@ def findUltPendByUserAndEmpresa():
     serializer = PedidoFindByUserEmpresaRequestSchemaDto()
     d = serializer.load(data)
     if d['user_id'] is None:
-        return abort(500, "No existe Usuario ")
+        return {"message": "No existe Usuario"}, 500
     if d['empresa_id'] is None:
-        return abort(500, "No existe Empresa ")
-
-    r=Pedido.query.filter_by(user_id=d['user_id'], empresa_id=d['empresa_id']).order_by(desc(Pedido.id)).all()
+        return {"message": "No existe Empresa"}, 500
+    r=Pedido.query.filter_by(user_id=d['user_id'], empresa_id=d['empresa_id'],estado=Estados.PENDIENTE.value).order_by(desc(Pedido.id)).all()
     if r is None:
-        return abort(500, "No existe Pedido para el Usuario ")
+        return {"message": "No existe Pedido para el Usuario"}, 500
     responseDto = PedidoSchemaDto()
     resp = responseDto.dump(r, many=True)
     return resp, 200
@@ -150,12 +163,12 @@ def insertItemPedido():
     d = serializer.load(data)
     p = Producto.get_by_id(d['producto']['id'])
     if p is None:
-        return abort(500, "No existe Producto")
+        return {"message": "No existe Producto"}, 500
     pedido = Pedido.get_by_id(d['pedido']['id'])
     if pedido is None:
-        return abort(500, "No existe Pedido")
+        return {"message": "No existe Pedido"}, 500
     if d['cantidad'] <= 0:
-        return abort(500, "Cantidad debe ser mayor a 0")
+        return {"message": "Cantidad debe ser mayor a 0"}, 500
     i = Pedidoitem()
     i.pedido = pedido
     i.producto = p
@@ -189,7 +202,7 @@ def pedidoitem_upd_cantidad():
 
 
 pedidos_updestado_blueprint = Blueprint('pedidos_updestado_blueprint', __name__)
-@pedidos_updestado_blueprint.route("/api/v1.0/pedidos/accion/upd/estado", methods=["POST"])
+@pedidos_updestado_blueprint.route("/api/v1.0/pedidos/accion/upd/estado", methods=["PATCH"])
 @jwt_required()
 def pedidos_upd_cantidad():
     data = request.get_json()
@@ -200,5 +213,19 @@ def pedidos_upd_cantidad():
         return abort(500, "No existe PedidoItem")
     r.estado = d['estado']
     r.save()
+    resp = serializer.dump(r, many=False)
+    return resp, 200
+
+
+ventas_productos_blueprint = Blueprint('ventas_productos_blueprint', __name__)
+@pedidos_updestado_blueprint.route("/api/v1.0/ventas/consulta/productos", methods=["POST"])
+@jwt_required()
+def ventas_get_productos():
+    data = request.get_json()
+    serializer = VentasPorProductosSchemaDto()
+    d = serializer.load(data)
+    r = Pedido.query.filter_by(empresa_id = d['empresa_id']).all()
+    if r is None:
+        return {"message":"No existe PedidoItem"},500
     resp = serializer.dump(r, many=False)
     return resp, 200
