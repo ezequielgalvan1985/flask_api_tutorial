@@ -5,7 +5,8 @@ from flask_jwt_extended import jwt_required, get_jwt
 from flask_restful import Api, Resource
 from sqlalchemy import desc
 from schemas import PedidoSchema, RolPermisoSchema, PedidoFindByUserEmpresaRequestSchemaDto, PedidoItemSchemaDto, \
-    PedidoItemSchema, PedidoSchemaDto, PedidoItemUpdRequestSchemaDto, VentasPorProductosSchemaDto
+    PedidoItemSchema, PedidoSchemaDto, PedidoItemUpdRequestSchemaDto, VentasPorProductosSchemaDto, \
+    PedidoFindByEmpresaAndEstadoRequestDto
 from models import Pedido, Permiso, Empresa, User, Producto, Pedidoitem
 from db import db
 from flask_jwt_extended import get_jwt_identity
@@ -47,6 +48,7 @@ class PedidoListResource(Resource):
             pedido.save()
             responseDto = PedidoSchemaDto()
             resp = responseDto.dump(pedido)
+
             return pedido.id, 201
         except BaseException as e:
             return {"message":"Error "+ str(e)},500
@@ -123,7 +125,7 @@ def pendientesFindByUser(user_id):
 
 
 pedidos_findbyuser_blueprint = Blueprint('pedidos_findbyuser_blueprint', __name__)
-@pedidos_findbyuser_blueprint.route("/api/v1.0/pedidos/consultas/getbyuser/<int:user_id>", methods=["GET"])
+@pedidos_findbyuser_blueprint.route("/api/v1.0/pedidos/consultas/usuario/<int:user_id>", methods=["GET"])
 @jwt_required()
 def findByUser(user_id):
     r=Pedido.query.filter_by(user_id=user_id).order_by(desc(Pedido.id)).all()
@@ -228,4 +230,23 @@ def ventas_get_productos():
     if r is None:
         return {"message":"No existe PedidoItem"},500
     resp = serializer.dump(r, many=False)
+    return resp, 200
+
+
+
+pedidos_findbyempresaandestado_blueprint = Blueprint('pedidos_findbyempresaandestado_blueprint', __name__)
+@pedidos_findbyempresaandestado_blueprint.route("/api/v1.0/pedidos/consultas/empresa/estado", methods=["POST"])
+@jwt_required()
+def findbyempresaandestado():
+    data = request.get_json()
+    requestDto = PedidoFindByEmpresaAndEstadoRequestDto()
+    d = requestDto.load(data)
+    e = Empresa.get_by_id(d['empresa_id'])
+    if e is None:
+        return {"message": "No existe Empresa"}, 500
+    r = Pedido.query.filter_by(empresa_id=d['empresa_id']).all()
+    if r is None:
+        return {"message":"No existen Pedidos"},500
+    responseDto = PedidoSchemaDto()
+    resp = responseDto.dump(r, many=True)
     return resp, 200

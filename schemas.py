@@ -174,3 +174,9 @@ class PedidoFindByUserEmpresaRequestSchemaDto(ma.Schema):
 class VentasPorProductosSchemaDto(ma.Schema):
     empresa_id = fields.Integer()
     anio = fields.Integer()
+
+
+class PedidoFindByEmpresaAndEstadoRequestDto(ma.Schema):
+    empresa_id = fields.Integer()
+    usuario_id = fields.Integer()
+    estado_id = fields.Integer()
