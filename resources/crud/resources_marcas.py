@@ -18,7 +18,6 @@ marcas_blueprint = Blueprint('marcas_blueprint', __name__)
 api = Api(marcas_blueprint)
 
 
-
 class MarcaRepository():
     def add(self, data):
         record_dict = marca_serializer.load(data)
@@ -45,14 +44,11 @@ class MarcaGestor():
     def publish_create(self, body):
         connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
         channel = connection.channel()
-        exchange_name = 'marcas'
-        queue_name = 'marcas_create_queue'
-        channel.exchange_declare(exchange=exchange_name, exchange_type='direct')
-        result = channel.queue_declare(queue=queue_name, exclusive=True)
-        channel.queue_bind(exchange=exchange_name, queue=queue_name)
-
-        channel.basic_publish(exchange='marcas_ex', body=body,routing_key='cola_prueba')
+        queue_name = 'marcas_create_queue_4'
+        channel.queue_declare(queue=queue_name, durable=True)
+        channel.basic_publish(exchange='', body=body,routing_key='marcas_create_queue_4')
         print(f" [x] Sent publish_create_marca")
+        connection.close()
 
 class MarcaListResource(Resource):
     def __init__(self):

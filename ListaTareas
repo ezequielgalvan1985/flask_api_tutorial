@@ -26,7 +26,7 @@ Realizados
 
 Apuntes:
 flask db init
-flask db migrate -m "inicio"
+flask db migrate -m "renombre pedido.estado_id"
 flask db upgrade
 
 

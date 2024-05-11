@@ -4,8 +4,6 @@ from flask_restful import Api, abort
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 from werkzeug.security import check_password_hash
-
-from marcas_worker import MarcaWorker
 from models import User, RolPermiso, Categoria, Empresa, Producto, Datopersonal
 from resources.crud.resources_datospersonales import datospersonales_blueprint, datopersonal_serializer
 from resources.crud.resources_empresas import empresas_blueprint, empresa_serializer, empresas_findbyrubro_blueprint
@@ -160,6 +158,7 @@ Api(app, catch_all_404s=True)
 # Deshabilita el modo estricto de acabado de una URL con /
 app.url_map.strict_slashes = False
 
+
 # Registra los blueprints
 app.register_blueprint(users_blueprint)
 app.register_blueprint(categorias_blueprint)
@@ -184,8 +183,8 @@ app.register_blueprint(pedidoitem_updcantidad_blueprint)
 app.register_blueprint(pedidos_updestado_blueprint)
 app.register_blueprint(pedidos_findbyempresaandestado_blueprint)
 
+#Workers
 
 if __name__ == '__main__':
+
     app.run(debug=True)
-    #correr workers
-    marcas_worker = MarcaWorker().run()

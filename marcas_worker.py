@@ -1,27 +1,36 @@
 #!/usr/bin/env python
+import json
+import pickle
 import pika
+import http.client
 
-from resources.crud.resources_marcas import MarcaRepository
+from app import app
+from models import Marca
+from schemas import MarcaSchema
 
-class MarcaWorker():
-    def __init__(self):
-        self.connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
-        self.channel = self.connection.channel()
-        self.exchange_name = 'marcas'
-        self.queue_name = 'marcas_create_queue'
-        self.channel.exchange_declare(exchange=self.exchange_name, exchange_type='direct')
-        result = self.channel.queue_declare(queue=self.queue_name, exclusive=True)
-        self.channel.queue_bind(exchange=self.exchange_name, queue=self.queue_name)
-        self.channel.basic_consume(queue=self.queue_name, on_message_callback=self.marcas_create_callback, auto_ack=True)
+connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+channel = connection.channel()
+exchange_name = ''
+queue_name = 'marcas_create_queue_4'
+channel.queue_declare(queue=queue_name, durable=True)
 
-    def marcas_create_callback(ch, method, properties, body):
-        m = MarcaRepository()
-        if (m.create(body) == 0):
-            print(f" [x] Creado OK {body}")
-        else:
-            print(f" [x] Creado Con Error {body}")
+marca_serializer = MarcaSchema()
 
-    def run(self):
-        self.channel.start_consuming()
-        print(' [*] Waiting for logs Marcas. To exit press CTRL+C')
+
+def marcas_create_callback(ch, method, properties, body):
+    try:
+        print("marcas_create_callback")
+        body = pickle.loads(body)
+        with app.app_context():
+            record_dict = marca_serializer.load(body)
+            marca = Marca(nombre=record_dict['nombre'], descripcion=record_dict['descripcion'])
+            marca.save()
+            print(body)
+
+    except:
+        print("Error al dar de alta: ")
+
+channel.basic_consume(queue=queue_name, on_message_callback=marcas_create_callback)
+print('... Worker Marcas creado')
+channel.start_consuming()
 

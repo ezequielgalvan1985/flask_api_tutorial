@@ -241,12 +241,15 @@ def findbyempresaandestado():
     data = request.get_json()
     requestDto = PedidoFindByEmpresaAndEstadoRequestDto()
     d = requestDto.load(data)
-    e = Empresa.get_by_id(d['empresa_id'])
+
+    e = Empresa.query.filter_by(user_id=d['usuario_id']).first()
     if e is None:
-        return {"message": "No existe Empresa"}, 500
-    r = Pedido.query.filter_by(empresa_id=d['empresa_id']).all()
+        return {"message": "Usuario no tiene Empresa asignada"}, 500
+
+    r = Pedido.query.filter_by(empresa_id=e.id, estado=d['estado_id']).all()
     if r is None:
         return {"message":"No existen Pedidos"},500
+
     responseDto = PedidoSchemaDto()
     resp = responseDto.dump(r, many=True)
     return resp, 200
