@@ -1,34 +1,13 @@
 
-Pendientes:
-- jwt auth
-- api esteticas con links heteoas
-- bloquear los endponint menos el login
-
-
-- crud pedidos
-- crud pedidoitems
-- crud estados
-- usar abort en vez de custom response
-- crud roles
-- crud permisos
-- crud rolpermiso
-
-
-Realizados
-- crud usuario
-- crud marcas
-- crud categorias
-- crud productos
-
-- serializar objetos relacionados
-- manejo de errores
-
 
 Apuntes:
 flask db init
-flask db migrate -m "renombre pedido.estado_id"
+flask db migrate -m "renombre pedido.importe"
 flask db upgrade
 
 
-
+DOCUMENTACION DE REFERENCIA
 https://www.geeksforgeeks.org/using-jwt-for-user-authentication-in-flask/
+https://www.slingacademy.com/article/sqlalchemy-aggregation-min-max-average-sum/
+
+https://earthly.dev/blog/python-microservices-rabbitmq-docker/

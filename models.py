@@ -1,6 +1,8 @@
+from decimal import Decimal
 from typing import List
 
 from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 
 from db import db, BaseModelMixin,Mapped, mapped_column
@@ -220,6 +222,8 @@ class Pedido(db.Model, BaseModelMixin):
     empresa = db.relationship("Empresa")
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship("User")
+    descuento = db.Column(db.Float)
+    importe = db.Column(db.Float)
     def __init__(self, fecha):
         self.fecha = fecha
     def __repr__(self):
@@ -227,6 +231,9 @@ class Pedido(db.Model, BaseModelMixin):
     def __str__(self):
         return f'{self.fecha}'
 
+    @hybrid_property
+    def balance(self) -> Decimal:
+        return sum((r.balance for r in self.items), start=Decimal("0"))
 
 class Pedidoitem(db.Model, BaseModelMixin):
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -235,6 +242,8 @@ class Pedidoitem(db.Model, BaseModelMixin):
     producto_id = db.Column(db.Integer, db.ForeignKey('producto.id'))
     producto = db.relationship("Producto")
     cantidad = db.Column(db.Float)
+    descuento =db.Column(db.Float)
+    importe = db.Column(db.Float)
 
     def __repr__(self):
         return f'PedidoItem ({self.pedido_id})'

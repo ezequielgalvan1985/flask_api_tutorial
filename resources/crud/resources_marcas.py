@@ -18,52 +18,31 @@ marcas_blueprint = Blueprint('marcas_blueprint', __name__)
 api = Api(marcas_blueprint)
 
 
-class MarcaRepository():
-    def add(self, data):
-        record_dict = marca_serializer.load(data)
-        marca = Marca(nombre=record_dict['nombre'], descripcion=record_dict['descripcion'])
-        marca.save()
-        return 0
-
-    def list(self):
-        marcas = db.session.execute(db.select(Marca).order_by(Marca.nombre)).scalars()
-        result = marca_serializer.dump(marcas, many=True)
-        return result
-
-
-class Mediador():
-    def __init__(self):
-        self.marcas_gestor=MarcaGestor()
-
-    def publicar(self,comando:object, evento:str):
-        if(evento=='marcas_create'):
-            self.marcas_gestor.publish_create(comando)
 
 
 class MarcaGestor():
-    def publish_create(self, body):
+    def publicar(self, body, method):
         connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
         channel = connection.channel()
-        queue_name = 'marcas_create_queue_4'
+        properties = pika.BasicProperties(method)
+        queue_name = 'marcas_crud'
         channel.queue_declare(queue=queue_name, durable=True)
-        channel.basic_publish(exchange='', body=body,routing_key='marcas_create_queue_4')
-        print(f" [x] Sent publish_create_marca")
+        channel.basic_publish(exchange='', body=body,routing_key=queue_name,properties=properties)
+        print(f" [x] Sent "+method + " to "+queue_name )
         connection.close()
+
+
 
 class MarcaListResource(Resource):
     def __init__(self):
         self.repo=MarcaRepository()
-        self.mediador= Mediador()
+        self.gestor= MarcaGestor()
 
     def get(self):
         return self.repo.list()
 
     def post(self):
-        data = request.get_json()
-        #record_dict = marca_serializer.load(data)
-        #marca = Marca(nombre=record_dict['nombre'],descripcion=record_dict['descripcion'])
-        body = pickle.dumps(data)
-        self.mediador.publicar(body,'marcas_create')
+        self.gestor.publicar(pickle.dumps(request.get_json()),'marca_create')
         return "creado ok", 201
 
 
@@ -85,6 +64,7 @@ class MarcaResource(Resource):
         return '', 204
 
     def put(self, id):
+
 
         r = Marca.get_by_id(id)
         if r is None:

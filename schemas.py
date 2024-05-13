@@ -138,7 +138,7 @@ class PedidoSchemaDto(ma.Schema):
     empresa = ma.Nested(EmpresaSchemaDto, many=False)
     usuario = ma.Nested(UserSchemaDto, many=False)
     items = ma.Nested(PedidoItemSchemaDto, many=True)
-
+    importe = fields.Float()
 
 class PedidoItemSchema(ma.Schema):
     id = fields.Integer(dump_only=False)

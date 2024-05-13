@@ -2,35 +2,34 @@
 import json
 import pickle
 import pika
-import http.client
-
 from app import app
 from models import Marca
+from repository.repositories import MarcaRepository
 from schemas import MarcaSchema
 
 connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
 channel = connection.channel()
 exchange_name = ''
-queue_name = 'marcas_create_queue_4'
+queue_name = 'marcas_crud'
 channel.queue_declare(queue=queue_name, durable=True)
 
 marca_serializer = MarcaSchema()
+repository = MarcaRepository()
 
-
-def marcas_create_callback(ch, method, properties, body):
+def marcas_crud_callback(ch, method, properties, body):
     try:
-        print("marcas_create_callback")
-        body = pickle.loads(body)
+        print("marcas_crud_callback")
+        json_data = pickle.loads(body)
         with app.app_context():
-            record_dict = marca_serializer.load(body)
-            marca = Marca(nombre=record_dict['nombre'], descripcion=record_dict['descripcion'])
-            marca.save()
-            print(body)
+            if properties.content_type == 'marca_create':
+                repository.add(json_data)
+            elif properties.content_type == 'marca_update':
+                repository.update(json_data)
 
     except:
-        print("Error al dar de alta: ")
+        print("Error crud marcas")
 
-channel.basic_consume(queue=queue_name, on_message_callback=marcas_create_callback)
-print('... Worker Marcas creado')
+channel.basic_consume(queue=queue_name, on_message_callback=marcas_crud_callback)
+print('... Worker Marcas Crud escuchando...')
 channel.start_consuming()
 

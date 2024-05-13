@@ -3,7 +3,8 @@ from enum import Enum
 from flask import request, Blueprint, abort
 from flask_jwt_extended import jwt_required, get_jwt
 from flask_restful import Api, Resource
-from sqlalchemy import desc
+from flask_sqlalchemy import session
+from sqlalchemy import desc, func
 from schemas import PedidoSchema, RolPermisoSchema, PedidoFindByUserEmpresaRequestSchemaDto, PedidoItemSchemaDto, \
     PedidoItemSchema, PedidoSchemaDto, PedidoItemUpdRequestSchemaDto, VentasPorProductosSchemaDto, \
     PedidoFindByEmpresaAndEstadoRequestDto
@@ -44,7 +45,7 @@ class PedidoListResource(Resource):
             pedido.direccion = record_dict['direccion']
             pedido.empresa = Empresa.get_by_id(record_dict['empresa']['id'])
             pedido.user = User.get_by_id(record_dict['usuario']['id'])
-
+            pedido.importe = record_dict['importe']
             pedido.save()
             responseDto = PedidoSchemaDto()
             resp = responseDto.dump(pedido)
@@ -175,8 +176,16 @@ def insertItemPedido():
     i.pedido = pedido
     i.producto = p
     i.cantidad = d['cantidad']
+    #i.importe = i.cantidad * i.producto.precio
     i.save()
+    importe = 0
+
     pedido.get_by_id(pedido.id)
+
+    for i in pedido.items:
+        importe = importe + (i.cantidad * i.producto.precio)
+    pedido.importe =importe
+    pedido.save()
     responseDto = PedidoItemSchemaDto()
     responseDto.dump(pedido)
     resp = pedido_serializer.dump(responseDto, many=False)
@@ -253,3 +262,15 @@ def findbyempresaandestado():
     responseDto = PedidoSchemaDto()
     resp = responseDto.dump(r, many=True)
     return resp, 200
+
+from sqlalchemy import select
+pedidos_consulta_ventas_by_empresaandestado_blueprint = Blueprint('pedidos_consulta_ventas_by_empresaandestado_blueprint', __name__)
+@pedidos_consulta_ventas_by_empresaandestado_blueprint.route("/api/v1.0/pedidos/consultas/ventas/empresa/<int:propietario_id>/estado/<int:estado_id>", methods=["GET"])
+@jwt_required()
+def consulta_ventas_by_empresaandestado(propietario_id,estado_id):
+    e = Empresa.query.filter_by(user_id=propietario_id).first()
+    if e is None:
+        return {"message": "Usuario no tiene Empresa asignada"}, 500
+    print("estado:"+str(estado_id))
+    total = db.session.query(db.func.sum(Pedido.importe)).filter_by(empresa=e,estado=estado_id).scalar()
+    return {"total":total}, 200

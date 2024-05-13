@@ -11,7 +11,8 @@ from resources.crud.resources_marcas import marcas_blueprint
 from resources.crud.resources_pedidos import pedidos_blueprint, pedidos_getultimopendiente_blueprint, \
     pedidos_pendientesfindbyuser_blueprint, pedidos_findbyuser_blueprint, pedidos_findultpendbyuserandempresa_blueprint, \
     pedidos_insertitempedido_blueprint, pedidoitem_updcantidad_blueprint, \
-    pedidos_updestado_blueprint, pedidos_findbyempresaandestado_blueprint
+    pedidos_updestado_blueprint, pedidos_findbyempresaandestado_blueprint, \
+    pedidos_consulta_ventas_by_empresaandestado_blueprint
 from resources.crud.resources_permisos import permisos_blueprint
 from resources.crud.resources_publicidades import publicidades_blueprint
 from resources.crud.resources_roles import roles_blueprint
@@ -182,6 +183,7 @@ app.register_blueprint(pedidos_insertitempedido_blueprint)
 app.register_blueprint(pedidoitem_updcantidad_blueprint)
 app.register_blueprint(pedidos_updestado_blueprint)
 app.register_blueprint(pedidos_findbyempresaandestado_blueprint)
+app.register_blueprint(pedidos_consulta_ventas_by_empresaandestado_blueprint)
 
 #Workers
 
