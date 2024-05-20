@@ -52,7 +52,8 @@ class RubroSchema(ma.Schema):
     id = fields.Integer(dump_only=False)
     nombre = fields.String()
     descripcion = fields.String()
-
+    icon = fields.String()
+    clase = fields.String()
 class RubroSchemaDto(ma.Schema):
     id = fields.Integer(dump_only=False)
     nombre = fields.String()

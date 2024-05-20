@@ -20,9 +20,12 @@ class RubroListResource(Resource):
     def post(self):
         data = request.get_json()
         record_dict = rubro_serializer.load(data)
-        rubro = Rubro(nombre=record_dict['nombre'],descripcion=record_dict['descripcion'])
-        rubro.save()
-        resp = rubro_serializer.dump(rubro)
+        r = Rubro(nombre=record_dict['nombre'],descripcion=record_dict['descripcion'])
+        r.icon = record_dict['icon']
+        r.clase = record_dict['clase']
+
+        r.save()
+        resp = rubro_serializer.dump(r)
         return resp, 201
 
 
@@ -51,6 +54,9 @@ class RubroResource(Resource):
         record_dict = rubro_serializer.load(data)
         r.nombre = record_dict['nombre']
         r.descripcion = record_dict['descripcion']
+        r.icon = record_dict['icon']
+        r.clase = record_dict['clase']
+
         r.save()
         resp = rubro_serializer.dump(r)
         return {"message": "Actualizado Ok", "data": resp}, 200

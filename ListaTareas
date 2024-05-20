@@ -2,7 +2,7 @@
 
 Apuntes:
 flask db init
-flask db migrate -m "renombre pedido.importe"
+flask db migrate -m "rubros add column"
 flask db upgrade
 
 
@@ -11,3 +11,6 @@ https://www.geeksforgeeks.org/using-jwt-for-user-authentication-in-flask/
 https://www.slingacademy.com/article/sqlalchemy-aggregation-min-max-average-sum/
 
 https://earthly.dev/blog/python-microservices-rabbitmq-docker/
+
+tutorial sqlalchemy flask
+https://www.youtube.com/watch?v=SYG1jQYIxfQ&list=PLXmMXHVSvS-BlLA5beNJojJLlpE0PJgCW

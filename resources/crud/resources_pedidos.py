@@ -272,5 +272,5 @@ def consulta_ventas_by_empresaandestado(propietario_id,estado_id):
     if e is None:
         return {"message": "Usuario no tiene Empresa asignada"}, 500
     print("estado:"+str(estado_id))
-    total = db.session.query(db.func.sum(Pedido.importe)).filter_by(empresa=e,estado=estado_id).scalar()
+    total = db.session.query(db.func.count(Pedido.id)).filter_by(empresa=e,estado=estado_id).scalar()
     return {"total":total}, 200

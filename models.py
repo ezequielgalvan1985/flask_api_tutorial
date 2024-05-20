@@ -123,9 +123,11 @@ class Marca(db.Model, BaseModelMixin):
 
 
 class Rubro(db.Model, BaseModelMixin):
-    id: Mapped[int] = mapped_column(primary_key=True)
-    nombre: Mapped[str] = mapped_column(unique=True)
-    descripcion: Mapped[str]
+    id = Column(Integer, primary_key=True)
+    nombre = Column(String, nullable=False)
+    descripcion = Column(String, nullable=True)
+    icon = Column(String, nullable=True)
+    clase = Column(String, nullable=True)
 
     def __init__(self, nombre, descripcion):
         self.nombre = nombre
