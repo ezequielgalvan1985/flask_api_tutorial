@@ -2,7 +2,7 @@
 
 Apuntes:
 flask db init
-flask db migrate -m "rubros add column"
+flask db migrate -m "usuario update"
 flask db upgrade
 
 

@@ -7,6 +7,7 @@ from marshmallow import fields
 from flask import request, Blueprint
 from flask_restful import Api, Resource
 
+from repository.repositories import MarcaRepository
 from schemas import MarcaSchema
 from models import Marca
 from db import db
@@ -42,8 +43,13 @@ class MarcaListResource(Resource):
         return self.repo.list()
 
     def post(self):
-        self.gestor.publicar(pickle.dumps(request.get_json()),'marca_create')
-        return "creado ok", 201
+        #data = request.get_json()
+        #record_dict = marca_serializer.load(data)
+        #marca = Marca(nombre=record_dict['nombre'], descripcion=record_dict['descripcion'])
+        #marca.save()
+        result = self.repo.create(request.get_json())
+        #self.gestor.publicar(pickle.dumps(request.get_json()),'marca_create')
+        return result, 201
 
 
 
@@ -64,8 +70,6 @@ class MarcaResource(Resource):
         return '', 204
 
     def put(self, id):
-
-
         r = Marca.get_by_id(id)
         if r is None:
             return {"message": "No se encontro Id", "data": id}, 404

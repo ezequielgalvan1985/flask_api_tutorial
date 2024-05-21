@@ -27,7 +27,10 @@ class ProductoListResource(Resource):
                             descripcion=record_dict['descripcion'],
                             precio = record_dict['precio'])
         producto.categoria = Categoria.get_by_id(record_dict['categoria']['id'])
-        producto.empresa = Empresa.get_by_id(record_dict['empresa']['id'])
+        if not record_dict['empresa']['id'] is None:
+            if producto.empresa is None:
+                abort(404, "No se encontro Empresa")
+            producto.empresa = Empresa.get_by_id(record_dict['empresa']['id'])
         producto.marca = Marca.get_by_id(record_dict['marca']['id'])
         producto.precio_oferta=record_dict['precio_oferta']
         if producto.categoria is None:
@@ -74,6 +77,10 @@ class ProductoResource(Resource):
         if r.marca is None:
             abort(404, "No se encontro Marca")
 
+        if not record_dict['empresa']['id'] is None:
+            if r.empresa is None:
+                abort(404, "No se encontro Empresa")
+            r.empresa = Marca.get_by_id(record_dict['marca']['id'])
         r.save()
         resp = producto_serializer.dump(r)
         return {"message": "Actualizado Ok", "data": resp}, 200

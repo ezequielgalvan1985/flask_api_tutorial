@@ -36,9 +36,21 @@ class EmpresaListResource(Resource):
     def post(self):
         data = request.get_json()
         record_dict = empresa_serializer.load(data)
-        empresa = Empresa(nombre=record_dict['nombre'],
-                          usuario_id=record_dict['usuario_id'],
-                          rubro_id=record_dict['rubro_id'])
+        empresa = Empresa(nombre=record_dict['nombre'])
+        if not record_dict['usuario']['id'] is None:
+            usuario = User.get_by_id(record_dict['usuario']['id'])
+            if usuario is None:
+                return abort(500, "No existe Usuario " +record_dict['usuario']['id'] )
+            empresa.usuario = usuario
+        if not record_dict['rubro']['id'] is None:
+            rubro = Rubro.get_by_id(record_dict['rubro']['id'])
+            if rubro is None:
+                return abort(500, "No existe Rubro " +record_dict['rubro']['id'] )
+            empresa.rubro = rubro
+        empresa.ciudad = record_dict['ciudad']
+        empresa.frase = record_dict['frase']
+        empresa.direccion = record_dict['direccion']
+        empresa.telefono = record_dict['telefono']
         empresa.descripcion = record_dict['descripcion']
         empresa.save()
         resp = empresa_serializer.dump(empresa)
@@ -62,32 +74,32 @@ class EmpresaResource(Resource):
         return '', 204
 
     def put(self, id):
-        r = Empresa.get_by_id(id)
-        if r is None:
+        empresa = Empresa.get_by_id(id)
+        if empresa is None:
             return {"message": "No se encontro Id", "data": id}, 404
 
         data = request.get_json()
         record_dict = empresa_serializer.load(data)
 
-        r.nombre = record_dict['nombre']
-        r.descripcion = record_dict['descripcion']
-        r.ciudad = record_dict['ciudad']
-        r.frase = record_dict['frase']
-        r.direccion = record_dict['direccion']
-        r.telefono = record_dict['telefono']
+        if not record_dict['usuario']['id'] is None:
+            usuario = User.get_by_id(record_dict['usuario']['id'])
+            if usuario is None:
+                return abort(500, "No existe Usuario " + record_dict['usuario']['id'])
+            empresa.usuario = usuario
+        if not record_dict['rubro']['id'] is None:
+            rubro = Rubro.get_by_id(record_dict['rubro']['id'])
+            if rubro is None:
+                return abort(500, "No existe Rubro " + record_dict['rubro']['id'])
+            empresa.rubro = rubro
+        empresa.nombre = record_dict['nombre']
+        empresa.ciudad = record_dict['ciudad']
+        empresa.frase = record_dict['frase']
+        empresa.direccion = record_dict['direccion']
+        empresa.telefono = record_dict['telefono']
+        empresa.descripcion = record_dict['descripcion']
+        empresa.save()
 
-        rubro = Rubro.get_by_id(record_dict['rubro']['id'])
-        if rubro is None:
-            return {"message": "No existe Rubro Id", "data": id}, 404
-        r.rubro_id = record_dict['rubro']['id']
-
-        u = User.get_by_id(record_dict['usuario']['id'])
-        if u is None:
-            return {"message": "No existe Usuario Id", "data": id}, 404
-        r.user_id = record_dict['usuario']['id']
-
-        r.save()
-        resp = empresa_serializer.dump(r)
+        resp = empresa_serializer.dump(empresa)
         return {"message": "Actualizado Ok", "data": resp}, 200
 
 api.add_resource(EmpresaListResource, '/api/v1.0/empresas',endpoint='empresas_list_resource')

@@ -66,7 +66,7 @@ class UserResource(Resource):
         record_dict = user_serializer.load(data)
         r.username = record_dict['username']
         r.email = record_dict['email']
-        r.rolId = record_dict['rolId']
+        r.rolId = record_dict['rol_id']
         r.save()
         resp = user_serializer.dump(r)
         return {"message": "Actualizado Ok", "data": resp}, 200

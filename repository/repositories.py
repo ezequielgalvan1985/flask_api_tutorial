@@ -12,7 +12,7 @@ class MarcaRepository():
         record_dict = marca_serializer.load(data)
         marca = Marca(nombre=record_dict['nombre'], descripcion=record_dict['descripcion'])
         marca.save()
-        return 0
+        return marca
 
     def update(self,data):
         r = Marca.get_by_id(id)

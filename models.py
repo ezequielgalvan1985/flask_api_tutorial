@@ -15,6 +15,7 @@ class User(db.Model, BaseModelMixin):
     email: Mapped[str]
     password = db.Column(db.String(80))
     rol_id = db.Column(db.Integer, db.ForeignKey('rol.id'))
+    rol = db.relationship("Rol")
 
     def __init__(self, username, email):
         self.username = username
@@ -179,10 +180,8 @@ class Empresa(db.Model, BaseModelMixin):
     telefono = Column(String, nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'),nullable=False)
     usuario = db.relationship("User")
-    def __init__(self, nombre, usuario_id, rubro_id ):
+    def __init__(self, nombre):
         self.nombre = nombre
-        self.user_id = usuario_id
-        self.rubro_id = rubro_id
 
 
     def __repr__(self):
