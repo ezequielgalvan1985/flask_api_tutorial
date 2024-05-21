@@ -16,28 +16,22 @@ class ProductoListResource(Resource):
         return result
 
     def post(self):
-        print("aqui_entro")
         data = request.get_json()
-        print("aqui_entro2")
-        print(data)
         record_dict = producto_serializer.load(data)
-        print("aqui_entro3")
-
         producto = Producto(nombre=record_dict['nombre'],
                             descripcion=record_dict['descripcion'],
                             precio = record_dict['precio'])
         producto.categoria = Categoria.get_by_id(record_dict['categoria']['id'])
         if not record_dict['empresa']['id'] is None:
+            producto.empresa = Empresa.get_by_id(record_dict['empresa']['id'])
             if producto.empresa is None:
                 abort(404, "No se encontro Empresa")
-            producto.empresa = Empresa.get_by_id(record_dict['empresa']['id'])
         producto.marca = Marca.get_by_id(record_dict['marca']['id'])
         producto.precio_oferta=record_dict['precio_oferta']
         if producto.categoria is None:
             abort(404, "No se encontro Categoria")
         producto.save()
         resp = producto_serializer.dump(producto)
-        print("aqui_entro3")
         return resp, 201
 
 
@@ -78,9 +72,9 @@ class ProductoResource(Resource):
             abort(404, "No se encontro Marca")
 
         if not record_dict['empresa']['id'] is None:
+            r.empresa = Empresa.get_by_id(record_dict['empresa']['id'])
             if r.empresa is None:
                 abort(404, "No se encontro Empresa")
-            r.empresa = Marca.get_by_id(record_dict['marca']['id'])
         r.save()
         resp = producto_serializer.dump(r)
         return {"message": "Actualizado Ok", "data": resp}, 200
