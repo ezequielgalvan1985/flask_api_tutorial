@@ -12,7 +12,7 @@ from resources.crud.resources_pedidos import pedidos_blueprint, pedidos_getultim
     pedidos_pendientesfindbyuser_blueprint, pedidos_findbyuser_blueprint, pedidos_findultpendbyuserandempresa_blueprint, \
     pedidos_insertitempedido_blueprint, pedidoitem_updcantidad_blueprint, \
     pedidos_updestado_blueprint, pedidos_findbyempresaandestado_blueprint, \
-    pedidos_consulta_ventas_by_empresaandestado_blueprint
+    pedidos_consulta_ventas_by_empresaandestado_blueprint, pedidos_confirmar_pendientes_blueprint
 from resources.crud.resources_permisos import permisos_blueprint
 from resources.crud.resources_publicidades import publicidades_blueprint
 from resources.crud.resources_roles import roles_blueprint
@@ -54,7 +54,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
 app.config['SHOW_SQLALCHEMY_LOG_MESSAGES'] = SHOW_SQLALCHEMY_LOG_MESSAGES
 app.config['ERROR_404_HELP'] = ERROR_404_HELP
 app.config['JWT_SECRET_KEY'] = 'your-secret-key'
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=120)
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=30)
 
 jwt = JWTManager(app)
 
@@ -184,6 +184,8 @@ app.register_blueprint(pedidoitem_updcantidad_blueprint)
 app.register_blueprint(pedidos_updestado_blueprint)
 app.register_blueprint(pedidos_findbyempresaandestado_blueprint)
 app.register_blueprint(pedidos_consulta_ventas_by_empresaandestado_blueprint)
+app.register_blueprint(pedidos_confirmar_pendientes_blueprint)
+
 
 #Workers
 

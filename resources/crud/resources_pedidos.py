@@ -194,7 +194,7 @@ def insertItemPedido():
 
 
 pedidoitem_updcantidad_blueprint = Blueprint('pedidoitem_updrequestdto_blueprint', __name__)
-@pedidoitem_updcantidad_blueprint.route("/api/v1.0/pedidoitems/accion/upd/cantidad", methods=["POST"])
+@pedidoitem_updcantidad_blueprint.route("/api/v1.0/pedidoitems/comandos/upd/cantidad", methods=["POST"])
 @jwt_required()
 def pedidoitem_upd_cantidad():
     data = request.get_json()
@@ -263,6 +263,7 @@ def findbyempresaandestado():
     resp = responseDto.dump(r, many=True)
     return resp, 200
 
+
 from sqlalchemy import select
 pedidos_consulta_ventas_by_empresaandestado_blueprint = Blueprint('pedidos_consulta_ventas_by_empresaandestado_blueprint', __name__)
 @pedidos_consulta_ventas_by_empresaandestado_blueprint.route("/api/v1.0/pedidos/consultas/ventas/empresa/<int:propietario_id>/estado/<int:estado_id>", methods=["GET"])
@@ -274,3 +275,19 @@ def consulta_ventas_by_empresaandestado(propietario_id,estado_id):
     print("estado:"+str(estado_id))
     total = db.session.query(db.func.count(Pedido.id)).filter_by(empresa=e,estado=estado_id).scalar()
     return {"total":total}, 200
+
+
+
+pedidos_confirmar_pendientes_blueprint = Blueprint('pedidos_confirmar_pendientes_blueprint', __name__)
+@pedidos_confirmar_pendientes_blueprint.route("/api/v1.0/pedidos/comandos/confirmar/pendientes/<int:user_id>", methods=["POST"])
+@jwt_required()
+def pedidos_confirmar_pendientes(user_id):
+    try:
+        result = Pedido.query.filter_by(user_id=user_id, estado=Estados.PENDIENTE.value)
+        for r in result:
+            r.estado = Estados.CONFIRMADO.value
+            r.save()
+    except:
+        return abort(500, "Error al Actualizar Pedidos Pendientes ")
+
+    return {"message":"OK","data":"", "status":0}, 200
