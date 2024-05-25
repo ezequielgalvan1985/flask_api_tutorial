@@ -136,9 +136,13 @@ def productosFindByEmpresaId(empresa_id):
 @app.route("/api/v1.0/datospersonales/consultas/findbyuser/<int:id>", methods=["GET"])
 @jwt_required()
 def datospersonalesFindByUserId(id):
-    r=Datopersonal.query.filter_by(id=id).first()
+    u = User.query.filter_by(id=id)
+    if u is None:
+        return {"message":"No existen Usuario"+ id, "code":1}, 400
+
+    r=Datopersonal.query.filter_by(user=u).first()
     if r is None:
-        return abort(500, "No existen Datos para el Usuario "+ id)
+        return {"message":"No existen Datos para el Usuario "+ id, "code":1}, 400
 
     resp = datopersonal_serializer.dump(r, many=False)
     return resp, 200
