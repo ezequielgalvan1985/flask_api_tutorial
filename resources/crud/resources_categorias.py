@@ -13,10 +13,9 @@ api = Api(categorias_blueprint)
 
 
 class CategoriaListResource(Resource):
-    @jwt_required()
     def get(self):
-        claims = get_jwt()
-        acceso = False
+        #claims = get_jwt()
+        #acceso = False
         '''
         permisoRequerido= Permiso.query.filter_by(recurso='categorias').first()
         if permisoRequerido is None:
@@ -33,6 +32,7 @@ class CategoriaListResource(Resource):
         result = categoria_serializer.dump(categorias, many=True)
         return result
 
+    @jwt_required()
     def post(self):
         data = request.get_json()
         record_dict = categoria_serializer.load(data)
@@ -52,7 +52,7 @@ class CategoriaResource(Resource):
             return {"mensaje": "categoria no existe"}, 404
         resp = categoria_serializer.dump(r)
         return resp
-
+    @jwt_required()
     def delete(self, id):
         r = Categoria.get_by_id(id)
         if r is None:
@@ -60,7 +60,7 @@ class CategoriaResource(Resource):
         categorias = db.session.delete(r)
         db.session.commit()
         return '', 204
-
+    @jwt_required()
     def put(self, id):
         r = Categoria.get_by_id(id)
         if r is None:

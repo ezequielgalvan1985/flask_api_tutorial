@@ -109,17 +109,6 @@ def login():
 
 
 
-@app.route("/who_am_i", methods=["GET"])
-@jwt_required()
-def who_am_i():
-    # We can now access our sqlalchemy User object via `current_user`.
-    return jsonify(
-        id=current_user.id,
-        email=current_user.email,
-        username=current_user.username,
-    )
-
-
 #metodos personalizados
 #Consultas Categorias
 
@@ -137,10 +126,11 @@ def productosFindByEmpresaId(empresa_id):
 @jwt_required()
 def datospersonalesFindByUserId(id):
     u = User.query.filter_by(id=id)
+    print("flag1")
     if u is None:
         return {"message":"No existen Usuario"+ id, "code":1}, 400
 
-    r=Datopersonal.query.filter_by(user=u).first()
+    r=Datopersonal.query.filter_by(user_id=u.id).first()
     if r is None:
         return {"message":"No existen Datos para el Usuario "+ id, "code":1}, 400
 
